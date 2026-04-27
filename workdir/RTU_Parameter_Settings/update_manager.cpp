@@ -30,6 +30,45 @@ QByteArray normalizeSha256Text(const QString &text)
     value.replace("\n", "");
     return value;
 }
+
+QString describeNetworkError(QNetworkReply *reply)
+{
+    if (!reply) {
+        return QStringLiteral("未知网络错误");
+    }
+
+    const QVariant statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+    const QString reason = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString().trimmed();
+    const QUrl redirectUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+    QStringList parts;
+    const bool hasHttpStatus = statusCode.isValid();
+
+    if (hasHttpStatus) {
+        QString statusText = QStringLiteral("HTTP %1").arg(statusCode.toInt());
+        if (!reason.isEmpty()) {
+            statusText += QStringLiteral(" %1").arg(reason);
+        }
+        parts << statusText;
+    }
+
+    const QString networkError = reply->errorString().trimmed();
+    if (!hasHttpStatus
+        && !networkError.isEmpty()
+        && networkError.compare(QStringLiteral("Unknown error"), Qt::CaseInsensitive) != 0) {
+        parts << networkError;
+    }
+
+    if (redirectUrl.isValid()) {
+        parts << QStringLiteral("重定向到：%1").arg(redirectUrl.toString());
+    }
+
+    if (parts.isEmpty()) {
+        parts << QStringLiteral("网络请求失败");
+    }
+
+    parts << QStringLiteral("地址：%1").arg(reply->url().toString());
+    return parts.join(QStringLiteral("，"));
+}
 }
 
 UpdateManager::UpdateManager(QWidget *ownerWidget, QObject *parent)
@@ -104,7 +143,7 @@ void UpdateManager::handleManifestReply()
     QString errorText;
 
     if (m_manifestReply->error() != QNetworkReply::NoError) {
-        errorText = m_manifestReply->errorString();
+        errorText = describeNetworkError(m_manifestReply);
     } else {
         data = m_manifestReply->readAll();
     }
@@ -176,7 +215,7 @@ void UpdateManager::handlePackageReply()
     QString errorText;
     QByteArray data;
     if (m_packageReply->error() != QNetworkReply::NoError) {
-        errorText = m_packageReply->errorString();
+        errorText = describeNetworkError(m_packageReply);
     } else {
         data = m_packageReply->readAll();
     }
