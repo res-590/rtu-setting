@@ -72,7 +72,7 @@ RTU_Parameter_Config_Tool/
 Enabled=true
 AutoCheckOnStartup=true
 RequestTimeoutMs=15000
-ManifestUrl=https://raw.githubusercontent.com/your-user/your-repo/main/update/update_manifest.json
+ManifestUrl=https://raw.githubusercontent.com/res-590/rtu-setting/main/workdir/RTU_Parameter_Settings/update/update_manifest.json
 UpdaterExecutable=updater.exe
 ```
 
@@ -92,13 +92,13 @@ UpdaterExecutable=updater.exe
 推荐做法：
 
 1. 把发布 zip 上传到 GitHub Releases
-2. 把 `update_manifest.json` 放到仓库里，例如 `update/update_manifest.json`
+2. 把 `update_manifest.json` 放到仓库里，例如 `workdir/RTU_Parameter_Settings/update/update_manifest.json`
 3. `ManifestUrl` 使用 `raw.githubusercontent.com` 地址
 
 示例：
 
 - 清单地址  
-  `https://raw.githubusercontent.com/res-590/rtu-setting/main/update/update_manifest.json`
+  `https://raw.githubusercontent.com/res-590/rtu-setting/main/workdir/RTU_Parameter_Settings/update/update_manifest.json`
 - zip 下载地址  
   `https://github.com/res-590/rtu-setting/releases/download/v1.0.1/RTU_Parameter_Config_Tool-1.0.1.zip`
 
@@ -116,7 +116,7 @@ powershell -ExecutionPolicy Bypass -File .\deploy\generate_github_manifest.ps1 `
   -Notes "1. 修复日志显示`r`n2. 优化界面布局"
 ```
 
-生成后把 `update_manifest.json` 提交到仓库的 `update/` 目录即可。
+生成后把 `update_manifest.json` 提交到仓库的 `workdir/RTU_Parameter_Settings/update/` 目录即可。
 
 ## 打包脚本
 
