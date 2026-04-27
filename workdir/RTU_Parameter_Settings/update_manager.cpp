@@ -197,13 +197,22 @@ void UpdateManager::handleManifestReply()
 
 void UpdateManager::handlePackageProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
-    if (bytesTotal <= 0) {
+    if (bytesReceived == m_lastProgressBytes && bytesTotal == m_lastProgressTotal) {
         return;
     }
 
-    appendLog(QStringLiteral("[更新] 下载进度：%1 / %2 KB")
-                  .arg(bytesReceived / 1024)
-                  .arg(bytesTotal / 1024));
+    m_lastProgressBytes = bytesReceived;
+    m_lastProgressTotal = bytesTotal;
+
+    if (bytesTotal > 0) {
+        appendLog(QStringLiteral("[更新] 下载进度：%1 / %2 KB")
+                      .arg(bytesReceived / 1024)
+                      .arg(bytesTotal / 1024));
+        return;
+    }
+
+    appendLog(QStringLiteral("[更新] 已下载：%1 KB（服务器未返回总大小）")
+                  .arg(bytesReceived / 1024));
 }
 
 void UpdateManager::handlePackageReply()
@@ -308,6 +317,8 @@ void UpdateManager::resetState()
 {
     m_pendingManifest = UpdateManifest();
     m_downloadedPackagePath.clear();
+    m_lastProgressBytes = -1;
+    m_lastProgressTotal = -1;
 }
 
 void UpdateManager::showInfoMessage(const QString &title, const QString &text) const

@@ -63,6 +63,8 @@ private:
     QString m_downloadedPackagePath;
     QString m_loadedConfigPath;
     bool m_manualCheck = false;
+    qint64 m_lastProgressBytes = -1;
+    qint64 m_lastProgressTotal = -1;
 };
 
 #endif // UPDATE_MANAGER_H

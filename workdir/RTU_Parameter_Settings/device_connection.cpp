@@ -95,6 +95,11 @@ QString afnLabel(uint8_t afn)
         .arg(afnDescription(afn));
 }
 
+bool shouldSuppressReceiveLog(uint8_t afn)
+{
+    return afn == 0x34;
+}
+
 void learnFrameBaseInfo(RTU_Message_s &message)
 {
     m_RTU_ParameterSetting->FrameBaseInfo.centeraddr = message.message.Caddr;
@@ -257,8 +262,11 @@ void Device_connection::message_handle()
 void Device_connection::dispatchCurrentMessage()
 {
     const uint8_t afn = m_RTU_ParameterSetting->m_recivemessage.message.AFN;
-    appendReceiveLog(QStringLiteral("接收完成：%1 字节\r\n").arg(m_RTU_ParameterSetting->rMessageLen));
-    appendReceiveLog(QStringLiteral("报文类型：%1\r\n\r\n").arg(afnLabel(afn)));
+    const bool suppressReceiveLog = shouldSuppressReceiveLog(afn);
+    if (!suppressReceiveLog) {
+        appendReceiveLog(QStringLiteral("接收完成：%1 字节\r\n").arg(m_RTU_ParameterSetting->rMessageLen));
+        appendReceiveLog(QStringLiteral("报文类型：%1\r\n\r\n").arg(afnLabel(afn)));
+    }
 
     if (m_RTU_ParameterSetting->rMessageLen >= 10 &&
         m_RTU_ParameterSetting->m_recivemessage.message.Frame_heder == 0x7E7E) {
@@ -326,10 +334,10 @@ void Device_connection::dispatchCurrentMessage()
             m_RTU_ParameterSetting->baseReadRetriedAfterLearn = true;
             appendRuntimeLog(ui, QStringLiteral("已根据学习帧自动重试基础参数读取\r\n"));
             m_RTU_ParameterSetting->m_basicPage->requestBaseParamRead();
-        } else {
+        } else if (!suppressReceiveLog) {
             appendRuntimeLog(ui, QStringLiteral("未处理报文：%1\r\n").arg(afnLabel(afn)));
         }
-    } else {
+    } else if (!suppressReceiveLog) {
         appendRuntimeLog(ui, QStringLiteral("未处理报文：%1\r\n").arg(afnLabel(afn)));
     }
 
@@ -367,7 +375,10 @@ void Device_connection::processReceiveBuffer()
         memset(m_RTU_ParameterSetting->m_recivemessage.messageByte, 0, sizeof(m_RTU_ParameterSetting->m_recivemessage.messageByte));
         memcpy(m_RTU_ParameterSetting->m_recivemessage.messageByte, frame.constData(), frame.size());
         m_RTU_ParameterSetting->rMessageLen = static_cast<uint32_t>(frame.size());
-        appendReceiveLog(QStringLiteral("接收数据：%1\r\n").arg(formatHexWithSpaces(frame)));
+        const uint8_t afn = m_RTU_ParameterSetting->m_recivemessage.message.AFN;
+        if (!shouldSuppressReceiveLog(afn)) {
+            appendReceiveLog(QStringLiteral("接收数据：%1\r\n").arg(formatHexWithSpaces(frame)));
+        }
         dispatchCurrentMessage();
     }
 }

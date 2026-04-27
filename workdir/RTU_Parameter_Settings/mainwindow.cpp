@@ -47,7 +47,6 @@ MainWindow::MainWindow(QWidget *parent)
     updateConnectionStatus(false);
 
     m_updateManager = new UpdateManager(this, this);
-    m_updateManager->scheduleStartupCheck();
 }
 
 MainWindow::~MainWindow()
