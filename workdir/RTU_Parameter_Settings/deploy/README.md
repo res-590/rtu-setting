@@ -72,9 +72,51 @@ RTU_Parameter_Config_Tool/
 Enabled=true
 AutoCheckOnStartup=true
 RequestTimeoutMs=15000
-ManifestUrl=https://your-server.example.com/rtu-config-tool/update_manifest.json
+ManifestUrl=https://raw.githubusercontent.com/your-user/your-repo/main/update/update_manifest.json
 UpdaterExecutable=updater.exe
 ```
+
+程序会按下面顺序自动查找配置文件：
+
+1. `程序目录/config/update_config.ini`
+2. `程序目录/update_config.ini`
+3. `当前工作目录/config/update_config.ini`
+4. `当前工作目录/update_config.ini`
+5. 上级目录中的同名配置
+6. 上级目录中的 `deploy/update_config.ini.example`
+
+这意味着开发时直接运行 `debug` 目录下的 exe，也能回退找到项目里的模板配置。
+
+## GitHub 使用方式
+
+推荐做法：
+
+1. 把发布 zip 上传到 GitHub Releases
+2. 把 `update_manifest.json` 放到仓库里，例如 `update/update_manifest.json`
+3. `ManifestUrl` 使用 `raw.githubusercontent.com` 地址
+
+示例：
+
+- 清单地址  
+  `https://raw.githubusercontent.com/res-590/rtu-setting/main/update/update_manifest.json`
+- zip 下载地址  
+  `https://github.com/res-590/rtu-setting/releases/download/v1.0.1/RTU_Parameter_Config_Tool-1.0.1.zip`
+
+## GitHub 清单生成脚本
+
+脚本：`deploy/generate_github_manifest.ps1`
+
+示例：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\deploy\generate_github_manifest.ps1 `
+  -ZipPath .\publish\RTU_Parameter_Config_Tool-1.0.1.zip `
+  -Version 1.0.1 `
+  -Repo res-590/rtu-setting `
+  -Notes "1. 修复日志显示`r`n2. 优化界面布局"
+```
+
+生成后把 `update_manifest.json` 提交到仓库的 `update/` 目录即可。
 
 ## 打包脚本
 

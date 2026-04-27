@@ -54,7 +54,9 @@ void UpdateManager::checkForUpdates(bool manual)
 {
     if (!loadConfig()) {
         if (manual) {
-            showInfoMessage(QStringLiteral("检查更新"), QStringLiteral("未找到更新配置文件：%1").arg(updateConfigPath()));
+            showInfoMessage(QStringLiteral("检查更新"),
+                            QStringLiteral("未找到更新配置文件。\r\n已尝试路径：\r\n%1")
+                                .arg(updateConfigCandidates().join(QStringLiteral("\r\n"))));
         }
         return;
     }
@@ -68,7 +70,8 @@ void UpdateManager::checkForUpdates(bool manual)
 
     if (!m_config.manifestUrl.isValid()) {
         if (manual) {
-            showInfoMessage(QStringLiteral("检查更新"), QStringLiteral("升级清单地址无效，请检查 %1。").arg(updateConfigPath()));
+            showInfoMessage(QStringLiteral("检查更新"),
+                            QStringLiteral("升级清单地址无效，请检查：\r\n%1").arg(m_loadedConfigPath));
         }
         return;
     }
@@ -81,9 +84,11 @@ void UpdateManager::checkForUpdates(bool manual)
     }
 
     m_manualCheck = manual;
+    appendLog(QStringLiteral("[更新] 使用配置：%1").arg(m_loadedConfigPath));
     appendLog(QStringLiteral("[更新] 开始检查版本：%1").arg(m_config.manifestUrl.toString()));
 
     QNetworkRequest request(m_config.manifestUrl);
+    request.setTransferTimeout(m_config.requestTimeoutMs);
     m_manifestReply = m_networkManager->get(request);
     connect(m_manifestReply, &QNetworkReply::finished, this, &UpdateManager::handleManifestReply);
 }
@@ -123,6 +128,7 @@ void UpdateManager::handleManifestReply()
         }
         return;
     }
+
     if (manifest.packageUrl.isRelative()) {
         manifest.packageUrl = m_config.manifestUrl.resolved(manifest.packageUrl);
     }
@@ -130,12 +136,13 @@ void UpdateManager::handleManifestReply()
     if (!isNewerVersion(manifest.version)) {
         appendLog(QStringLiteral("[更新] 当前已是最新版本：%1").arg(QCoreApplication::applicationVersion()));
         if (manual) {
-            showInfoMessage(QStringLiteral("检查更新"), QStringLiteral("当前已是最新版本：%1").arg(QCoreApplication::applicationVersion()));
+            showInfoMessage(QStringLiteral("检查更新"),
+                            QStringLiteral("当前已是最新版本：%1").arg(QCoreApplication::applicationVersion()));
         }
         return;
     }
 
-    QString prompt = QStringLiteral("检测到新版本 %1，当前版本 %2。是否立即下载并更新？")
+    QString prompt = QStringLiteral("检测到新版本 %1，当前版本 %2。\r\n是否立即下载并更新？")
                          .arg(manifest.version, QCoreApplication::applicationVersion());
     if (!manifest.notes.trimmed().isEmpty()) {
         prompt += QStringLiteral("\r\n\r\n更新说明：\r\n%1").arg(manifest.notes.trimmed());
@@ -155,7 +162,7 @@ void UpdateManager::handlePackageProgress(qint64 bytesReceived, qint64 bytesTota
         return;
     }
 
-    appendLog(QStringLiteral("[更新] 下载进度：%1/%2 KB")
+    appendLog(QStringLiteral("[更新] 下载进度：%1 / %2 KB")
                   .arg(bytesReceived / 1024)
                   .arg(bytesTotal / 1024));
 }
@@ -180,17 +187,22 @@ void UpdateManager::handlePackageReply()
     if (!errorText.isEmpty()) {
         appendLog(QStringLiteral("[更新] 下载更新包失败：%1").arg(errorText));
         showInfoMessage(QStringLiteral("在线升级"), QStringLiteral("下载更新包失败：%1").arg(errorText));
+        resetState();
         return;
     }
 
     QSaveFile file(m_downloadedPackagePath);
     if (!file.open(QIODevice::WriteOnly)) {
-        showInfoMessage(QStringLiteral("在线升级"), QStringLiteral("无法写入更新包：%1").arg(m_downloadedPackagePath));
+        showInfoMessage(QStringLiteral("在线升级"),
+                        QStringLiteral("无法写入更新包：%1").arg(QDir::toNativeSeparators(m_downloadedPackagePath)));
+        resetState();
         return;
     }
     file.write(data);
     if (!file.commit()) {
-        showInfoMessage(QStringLiteral("在线升级"), QStringLiteral("保存更新包失败：%1").arg(m_downloadedPackagePath));
+        showInfoMessage(QStringLiteral("在线升级"),
+                        QStringLiteral("保存更新包失败：%1").arg(QDir::toNativeSeparators(m_downloadedPackagePath)));
+        resetState();
         return;
     }
 
@@ -198,12 +210,16 @@ void UpdateManager::handlePackageReply()
         appendLog(QStringLiteral("[更新] 更新包校验失败：%1").arg(m_downloadedPackagePath));
         QFile::remove(m_downloadedPackagePath);
         showInfoMessage(QStringLiteral("在线升级"), QStringLiteral("更新包校验失败，已终止升级。"));
+        resetState();
         return;
     }
 
     appendLog(QStringLiteral("[更新] 更新包下载完成：%1").arg(m_downloadedPackagePath));
     if (!launchUpdater(m_downloadedPackagePath, m_pendingManifest.version)) {
-        showInfoMessage(QStringLiteral("在线升级"), QStringLiteral("启动升级器失败，请检查发布目录中的 updater.exe 是否存在。"));
+        showInfoMessage(QStringLiteral("在线升级"),
+                        QStringLiteral("启动升级器失败，请检查发布目录中的 %1 是否存在。")
+                            .arg(APP_UPDATER_EXE_LITERAL));
+        resetState();
         return;
     }
 
@@ -215,11 +231,21 @@ void UpdateManager::handlePackageReply()
 
 bool UpdateManager::loadConfig()
 {
-    const QString configPath = updateConfigPath();
-    if (!QFileInfo::exists(configPath)) {
+    m_loadedConfigPath.clear();
+    const QStringList candidates = updateConfigCandidates();
+    QString configPath;
+    for (const QString &candidate : candidates) {
+        if (QFileInfo::exists(candidate)) {
+            configPath = candidate;
+            break;
+        }
+    }
+
+    if (configPath.isEmpty()) {
         return false;
     }
 
+    m_loadedConfigPath = QDir::toNativeSeparators(configPath);
     QSettings settings(configPath, QSettings::IniFormat);
 
     m_config.enabled = settings.value(QStringLiteral("Update/Enabled"), true).toBool();
@@ -306,6 +332,7 @@ void UpdateManager::downloadPackage(const UpdateManifest &manifest)
                   .arg(manifest.version, manifest.packageUrl.toString()));
 
     QNetworkRequest request(manifest.packageUrl);
+    request.setTransferTimeout(m_config.requestTimeoutMs);
     m_packageReply = m_networkManager->get(request);
     connect(m_packageReply, &QNetworkReply::downloadProgress,
             this, &UpdateManager::handlePackageProgress);
@@ -366,10 +393,35 @@ bool UpdateManager::launchUpdater(const QString &zipPath, const QString &targetV
 
 QString UpdateManager::updateConfigPath() const
 {
-    const QString appDir = QCoreApplication::applicationDirPath();
-    const QString configDirPath = QDir(appDir).filePath(QStringLiteral("config/%1").arg(APP_UPDATE_CONFIG_NAME_LITERAL));
-    if (QFileInfo::exists(configDirPath)) {
-        return configDirPath;
+    const QStringList candidates = updateConfigCandidates();
+    for (const QString &candidate : candidates) {
+        if (QFileInfo::exists(candidate)) {
+            return candidate;
+        }
     }
-    return QDir(appDir).filePath(APP_UPDATE_CONFIG_NAME_LITERAL);
+    return candidates.value(0);
+}
+
+QStringList UpdateManager::updateConfigCandidates() const
+{
+    const QString appDir = QCoreApplication::applicationDirPath();
+    const QString currentDir = QDir::currentPath();
+    QStringList candidates;
+
+    candidates << QDir(appDir).filePath(QStringLiteral("config/%1").arg(APP_UPDATE_CONFIG_NAME_LITERAL))
+               << QDir(appDir).filePath(APP_UPDATE_CONFIG_NAME_LITERAL)
+               << QDir(currentDir).filePath(QStringLiteral("config/%1").arg(APP_UPDATE_CONFIG_NAME_LITERAL))
+               << QDir(currentDir).filePath(APP_UPDATE_CONFIG_NAME_LITERAL);
+
+    QDir parentDir(appDir);
+    for (int depth = 0; depth < 4; ++depth) {
+        parentDir.cdUp();
+        candidates << parentDir.filePath(QStringLiteral("config/%1").arg(APP_UPDATE_CONFIG_NAME_LITERAL))
+                   << parentDir.filePath(APP_UPDATE_CONFIG_NAME_LITERAL)
+                   << parentDir.filePath(QStringLiteral("deploy/%1").arg(APP_UPDATE_CONFIG_NAME_LITERAL))
+                   << parentDir.filePath(QStringLiteral("deploy/update_config.ini.example"));
+    }
+
+    candidates.removeDuplicates();
+    return candidates;
 }

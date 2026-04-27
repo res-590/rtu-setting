@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QByteArray>
 #include <QPointer>
+#include <QStringList>
 #include <QUrl>
 
 class QNetworkAccessManager;
@@ -51,6 +52,7 @@ private:
     bool verifyPackageHash(const QString &filePath, const QByteArray &expectedSha256) const;
     bool launchUpdater(const QString &zipPath, const QString &targetVersion);
     QString updateConfigPath() const;
+    QStringList updateConfigCandidates() const;
 
     QWidget *m_ownerWidget;
     QNetworkAccessManager *m_networkManager;
@@ -59,6 +61,7 @@ private:
     UpdateConfig m_config;
     UpdateManifest m_pendingManifest;
     QString m_downloadedPackagePath;
+    QString m_loadedConfigPath;
     bool m_manualCheck = false;
 };
 
