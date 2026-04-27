@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>dtuset</class>
+ <widget class="QWidget" name="dtuset">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1100</width>
+    <height>760</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>DTU 参数</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>16</number>
+   </property>
+   <property name="leftMargin">
+    <number>16</number>
+   </property>
+   <property name="topMargin">
+    <number>16</number>
+   </property>
+   <property name="rightMargin">
+    <number>16</number>
+   </property>
+   <property name="bottomMargin">
+    <number>16</number>
+   </property>
+   <item>
+    <widget class="QFrame" name="summaryCard">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayoutSummary">
+      <property name="spacing">
+       <number>8</number>
+      </property>
+      <property name="leftMargin">
+       <number>20</number>
+      </property>
+      <property name="topMargin">
+       <number>18</number>
+      </property>
+      <property name="rightMargin">
+       <number>20</number>
+      </property>
+      <property name="bottomMargin">
+       <number>18</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="pageTitle">
+        <property name="text">
+         <string>DTU 参数配置</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="pageSubtitle">
+        <property name="text">
+         <string>集中维护运行模式、短信中心、串口速率以及四个上行通道的协议、地址、端口与服务号码。</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <layout class="QVBoxLayout" name="verticalLayoutContent">
+       <property name="spacing">
+        <number>16</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayoutTop">
+         <property name="spacing">
+          <number>16</number>
+         </property>
+         <item>
+          <widget class="QFrame" name="baseConfigCard">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayoutBaseCard">
+            <property name="spacing">
+             <number>16</number>
+            </property>
+            <property name="leftMargin">
+             <number>20</number>
+            </property>
+            <property name="topMargin">
+             <number>18</number>
+            </property>
+            <property name="rightMargin">
+             <number>20</number>
+            </property>
+            <property name="bottomMargin">
+             <number>18</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="labelBaseTitle">
+              <property name="text">
+               <string>基础通信配置</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QGridLayout" name="gridLayoutBase">
+              <property name="horizontalSpacing">
+               <number>16</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>12</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>运行模式</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="run_model">
+                <item>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>多通道 MUL</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>主备 MULB</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QLabel" name="label_14">
+                <property name="text">
+                 <string>最大数据包</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QLineEdit" name="Max_data">
+                <property name="placeholderText">
+                 <string>输入字节数</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_13">
+                <property name="text">
+                 <string>短信中心号</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="SMS">
+                <property name="placeholderText">
+                 <string>输入服务号码</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_12">
+                <property name="text">
+                 <string>波特率</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QComboBox" name="baud_rate">
+                <item><property name="text"><string/></property></item>
+                <item><property name="text"><string>300bps</string></property></item>
+                <item><property name="text"><string>600bps</string></property></item>
+                <item><property name="text"><string>1200bps</string></property></item>
+                <item><property name="text"><string>2400bps</string></property></item>
+                <item><property name="text"><string>4800bps</string></property></item>
+                <item><property name="text"><string>9600bps</string></property></item>
+                <item><property name="text"><string>19200bps</string></property></item>
+                <item><property name="text"><string>38400bps</string></property></item>
+                <item><property name="text"><string>57600bps</string></property></item>
+                <item><property name="text"><string>115200bps</string></property></item>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_21">
+                <property name="text">
+                 <string>短信编码</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QComboBox" name="sms_code">
+                <item><property name="text"><string/></property></item>
+                <item><property name="text"><string>7bit</string></property></item>
+                <item><property name="text"><string>8bit</string></property></item>
+                <item><property name="text"><string>UCS2</string></property></item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QFrame" name="actionCard">
+           <property name="minimumSize">
+            <size>
+             <width>260</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>300</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayoutActionCard">
+            <property name="spacing">
+             <number>14</number>
+            </property>
+            <property name="leftMargin">
+             <number>20</number>
+            </property>
+            <property name="topMargin">
+             <number>18</number>
+            </property>
+            <property name="rightMargin">
+             <number>20</number>
+            </property>
+            <property name="bottomMargin">
+             <number>18</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="pageHeaderBadgeValue">
+              <property name="text">
+               <string>快速操作</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="tableHintLabel">
+              <property name="text">
+               <string>先读取设备当前参数，再批量修改。四个通道区域统一放在下方，适合按链路逐项检查。</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="read_Button">
+              <property name="text">
+               <string>读取参数</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="set_Button">
+              <property name="text">
+               <string>写入参数</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacerTop">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="gridLayoutChannels">
+         <property name="horizontalSpacing">
+          <number>16</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>16</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QFrame" name="channel1Card">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <layout class="QFormLayout" name="formLayoutChannel1">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+            </property>
+            <property name="horizontalSpacing">
+             <number>18</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>14</number>
+            </property>
+            <property name="leftMargin">
+             <number>18</number>
+            </property>
+            <property name="topMargin">
+             <number>18</number>
+            </property>
+            <property name="rightMargin">
+             <number>18</number>
+            </property>
+            <property name="bottomMargin">
+             <number>18</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>通道 1 协议</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="channel1">
+              <item><property name="text"><string/></property></item>
+              <item><property name="text"><string>UDP</string></property></item>
+              <item><property name="text"><string>TCP</string></property></item>
+              <item><property name="text"><string>UDP+DDP</string></property></item>
+              <item><property name="text"><string>TCP+DDP</string></property></item>
+              <item><property name="text"><string>SMS</string></property></item>
+              <item><property name="text"><string>TCP SER</string></property></item>
+             </widget>
+            </item>
+            <item row="1" column="0"><widget class="QLabel" name="label_9"><property name="text"><string>IP 地址</string></property></widget></item>
+            <item row="1" column="1"><widget class="QLineEdit" name="IP1"><property name="placeholderText"><string>例如 192.168.1.10</string></property></widget></item>
+            <item row="2" column="0"><widget class="QLabel" name="label_8"><property name="text"><string>域名</string></property></widget></item>
+            <item row="2" column="1"><widget class="QLineEdit" name="domain1"><property name="placeholderText"><string>例如 uplink-a.example.com</string></property></widget></item>
+            <item row="3" column="0"><widget class="QLabel" name="label_7"><property name="text"><string>端口</string></property></widget></item>
+            <item row="3" column="1"><widget class="QLineEdit" name="port1"><property name="placeholderText"><string>例如 502</string></property></widget></item>
+            <item row="4" column="0"><widget class="QLabel" name="label_6"><property name="text"><string>服务号码</string></property></widget></item>
+            <item row="4" column="1"><widget class="QLineEdit" name="sms_num1"><property name="placeholderText"><string>短信通道号码</string></property></widget></item>
+           </layout>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QFrame" name="channel2Card">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <layout class="QFormLayout" name="formLayoutChannel2">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+            </property>
+            <property name="horizontalSpacing">
+             <number>18</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>14</number>
+            </property>
+            <property name="leftMargin">
+             <number>18</number>
+            </property>
+            <property name="topMargin">
+             <number>18</number>
+            </property>
+            <property name="rightMargin">
+             <number>18</number>
+            </property>
+            <property name="bottomMargin">
+             <number>18</number>
+            </property>
+            <item row="0" column="0"><widget class="QLabel" name="label_19"><property name="text"><string>通道 2 协议</string></property></widget></item>
+            <item row="0" column="1"><widget class="QComboBox" name="channel2"><item><property name="text"><string/></property></item><item><property name="text"><string>UDP</string></property></item><item><property name="text"><string>TCP</string></property></item><item><property name="text"><string>UDP+DDP</string></property></item><item><property name="text"><string>TCP+DDP</string></property></item><item><property name="text"><string>SMS</string></property></item><item><property name="text"><string>TCP SER</string></property></item></widget></item>
+            <item row="1" column="0"><widget class="QLabel" name="label_15"><property name="text"><string>IP 地址</string></property></widget></item>
+            <item row="1" column="1"><widget class="QLineEdit" name="IP2"><property name="placeholderText"><string>例如 192.168.1.11</string></property></widget></item>
+            <item row="2" column="0"><widget class="QLabel" name="label_17"><property name="text"><string>域名</string></property></widget></item>
+            <item row="2" column="1"><widget class="QLineEdit" name="domain2"><property name="placeholderText"><string>例如 uplink-b.example.com</string></property></widget></item>
+            <item row="3" column="0"><widget class="QLabel" name="label_20"><property name="text"><string>端口</string></property></widget></item>
+            <item row="3" column="1"><widget class="QLineEdit" name="port2"><property name="placeholderText"><string>例如 503</string></property></widget></item>
+            <item row="4" column="0"><widget class="QLabel" name="label_18"><property name="text"><string>服务号码</string></property></widget></item>
+            <item row="4" column="1"><widget class="QLineEdit" name="sms_num2"><property name="placeholderText"><string>短信通道号码</string></property></widget></item>
+           </layout>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QFrame" name="channel3Card">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <layout class="QFormLayout" name="formLayoutChannel3">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+            </property>
+            <property name="horizontalSpacing">
+             <number>18</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>14</number>
+            </property>
+            <property name="leftMargin">
+             <number>18</number>
+            </property>
+            <property name="topMargin">
+             <number>18</number>
+            </property>
+            <property name="rightMargin">
+             <number>18</number>
+            </property>
+            <property name="bottomMargin">
+             <number>18</number>
+            </property>
+            <item row="0" column="0"><widget class="QLabel" name="label_37"><property name="text"><string>通道 3 协议</string></property></widget></item>
+            <item row="0" column="1"><widget class="QComboBox" name="channel3"><item><property name="text"><string/></property></item><item><property name="text"><string>UDP</string></property></item><item><property name="text"><string>TCP</string></property></item><item><property name="text"><string>UDP+DDP</string></property></item><item><property name="text"><string>TCP+DDP</string></property></item><item><property name="text"><string>SMS</string></property></item><item><property name="text"><string>TCP SER</string></property></item></widget></item>
+            <item row="1" column="0"><widget class="QLabel" name="label_33"><property name="text"><string>IP 地址</string></property></widget></item>
+            <item row="1" column="1"><widget class="QLineEdit" name="IP3"><property name="placeholderText"><string>例如 192.168.1.12</string></property></widget></item>
+            <item row="2" column="0"><widget class="QLabel" name="label_35"><property name="text"><string>域名</string></property></widget></item>
+            <item row="2" column="1"><widget class="QLineEdit" name="domain3"><property name="placeholderText"><string>例如 uplink-c.example.com</string></property></widget></item>
+            <item row="3" column="0"><widget class="QLabel" name="label_38"><property name="text"><string>端口</string></property></widget></item>
+            <item row="3" column="1"><widget class="QLineEdit" name="port3"><property name="placeholderText"><string>例如 504</string></property></widget></item>
+            <item row="4" column="0"><widget class="QLabel" name="label_36"><property name="text"><string>服务号码</string></property></widget></item>
+            <item row="4" column="1"><widget class="QLineEdit" name="sms_num3"><property name="placeholderText"><string>短信通道号码</string></property></widget></item>
+           </layout>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QFrame" name="channel4Card">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <layout class="QFormLayout" name="formLayoutChannel4">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+            </property>
+            <property name="horizontalSpacing">
+             <number>18</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>14</number>
+            </property>
+            <property name="leftMargin">
+             <number>18</number>
+            </property>
+            <property name="topMargin">
+             <number>18</number>
+            </property>
+            <property name="rightMargin">
+             <number>18</number>
+            </property>
+            <property name="bottomMargin">
+             <number>18</number>
+            </property>
+            <item row="0" column="0"><widget class="QLabel" name="label_31"><property name="text"><string>通道 4 协议</string></property></widget></item>
+            <item row="0" column="1"><widget class="QComboBox" name="channel4"><item><property name="text"><string/></property></item><item><property name="text"><string>UDP</string></property></item><item><property name="text"><string>TCP</string></property></item><item><property name="text"><string>UDP+DDP</string></property></item><item><property name="text"><string>TCP+DDP</string></property></item><item><property name="text"><string>SMS</string></property></item><item><property name="text"><string>TCP SER</string></property></item></widget></item>
+            <item row="1" column="0"><widget class="QLabel" name="label_27"><property name="text"><string>IP 地址</string></property></widget></item>
+            <item row="1" column="1"><widget class="QLineEdit" name="IP4"><property name="placeholderText"><string>例如 192.168.1.13</string></property></widget></item>
+            <item row="2" column="0"><widget class="QLabel" name="label_29"><property name="text"><string>域名</string></property></widget></item>
+            <item row="2" column="1"><widget class="QLineEdit" name="domain4"><property name="placeholderText"><string>例如 uplink-d.example.com</string></property></widget></item>
+            <item row="3" column="0"><widget class="QLabel" name="label_32"><property name="text"><string>端口</string></property></widget></item>
+            <item row="3" column="1"><widget class="QLineEdit" name="port4"><property name="placeholderText"><string>例如 505</string></property></widget></item>
+            <item row="4" column="0"><widget class="QLabel" name="label_30"><property name="text"><string>服务号码</string></property></widget></item>
+            <item row="4" column="1"><widget class="QLineEdit" name="sms_num4"><property name="placeholderText"><string>短信通道号码</string></property></widget></item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

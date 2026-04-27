@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BasicPage</class>
+ <widget class="QWidget" name="BasicPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1100</width>
+    <height>760</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>基础参数</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>14</number>
+   </property>
+   <property name="leftMargin">
+    <number>12</number>
+   </property>
+   <property name="topMargin">
+    <number>12</number>
+   </property>
+   <property name="rightMargin">
+    <number>12</number>
+   </property>
+   <property name="bottomMargin">
+    <number>12</number>
+   </property>
+   <item>
+    <widget class="QFrame" name="summaryCard">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayoutSummary">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="leftMargin">
+       <number>18</number>
+      </property>
+      <property name="topMargin">
+       <number>14</number>
+      </property>
+      <property name="rightMargin">
+       <number>18</number>
+      </property>
+      <property name="bottomMargin">
+       <number>14</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="pageTitle">
+        <property name="text">
+         <string>基础参数配置</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="pageSubtitle">
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>当前页面仅保留基础参数和图片自报整点配置，不再显示采集要素。</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="actionCard">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayoutActions">
+      <property name="spacing">
+       <number>12</number>
+      </property>
+      <property name="leftMargin">
+       <number>14</number>
+      </property>
+      <property name="topMargin">
+       <number>12</number>
+      </property>
+      <property name="rightMargin">
+       <number>14</number>
+      </property>
+      <property name="bottomMargin">
+       <number>12</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="huifu_Button">
+        <property name="text">
+         <string>清空内容</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="read_Button">
+        <property name="text">
+         <string>读取参数</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="set_Button">
+        <property name="text">
+         <string>设置参数</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <layout class="QVBoxLayout" name="verticalLayoutContent">
+       <property name="spacing">
+        <number>14</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QFrame" name="baseInfoCard">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayoutBaseInfo">
+          <property name="spacing">
+           <number>12</number>
+          </property>
+          <property name="leftMargin">
+           <number>18</number>
+          </property>
+          <property name="topMargin">
+           <number>18</number>
+          </property>
+          <property name="rightMargin">
+           <number>18</number>
+          </property>
+          <property name="bottomMargin">
+           <number>18</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="labelSectionBase">
+            <property name="text">
+             <string>基础参数</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayoutBase">
+            <property name="horizontalSpacing">
+             <number>18</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>14</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelDeviceId">
+              <property name="text">
+               <string>设备编号：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="deviceIdEdit"/>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="labelModifyId">
+              <property name="text">
+               <string>修改编号：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QLineEdit" name="modifyIdEdit"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="labelWorkMode">
+              <property name="text">
+               <string>工作方式：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="workModeCombo"/>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLabel" name="labelPassword">
+              <property name="text">
+               <string>通信密码：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <widget class="QLineEdit" name="tongxinmima"/>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="labelReportInterval">
+              <property name="text">
+               <string>加报间隔(分)：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="reportIntervalEdit"/>
+            </item>
+            <item row="2" column="2">
+             <widget class="QLabel" name="labelDayStart">
+              <property name="text">
+               <string>日起始时间(时)：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="3">
+             <widget class="QLineEdit" name="dayStartEdit"/>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="labelRainRange">
+              <property name="text">
+               <string>雨量计量程(mm)：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="rainRangeEdit"/>
+            </item>
+            <item row="3" column="2">
+             <widget class="QLabel" name="labelStoreInterval">
+              <property name="text">
+               <string>存储间隔(分)：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="3">
+             <widget class="QLineEdit" name="storeIntervalEdit"/>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="labelRainThreshold">
+              <property name="text">
+               <string>雨量加报阀值(mm)：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QLineEdit" name="rainThresholdEdit"/>
+            </item>
+            <item row="4" column="2">
+             <widget class="QLabel" name="labelWaterThreshold">
+              <property name="text">
+               <string>水位加报阀值(m)：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="3">
+             <widget class="QLineEdit" name="waterThresholdEdit"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="timeCard">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayoutTime">
+          <property name="spacing">
+           <number>12</number>
+          </property>
+          <property name="leftMargin">
+           <number>18</number>
+          </property>
+          <property name="topMargin">
+           <number>18</number>
+          </property>
+          <property name="rightMargin">
+           <number>18</number>
+          </property>
+          <property name="bottomMargin">
+           <number>18</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="labelSectionTime">
+            <property name="text">
+             <string>图片自报整点</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayoutTimeTools">
+            <property name="spacing">
+             <number>12</number>
+            </property>
+            <item>
+             <widget class="QPushButton" name="selectAllHoursButton">
+              <property name="text">
+               <string>全选</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="clearAllHoursButton">
+              <property name="text">
+               <string>全不选</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="every2HoursButton">
+              <property name="text">
+               <string>每2小时</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="every3HoursButton">
+              <property name="text">
+               <string>每3小时</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacerTime">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayoutTime">
+            <property name="horizontalSpacing">
+             <number>12</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>10</number>
+            </property>
+            <item row="0" column="0"><widget class="QCheckBox" name="time_8"><property name="text"><string>8点</string></property></widget></item>
+            <item row="0" column="1"><widget class="QCheckBox" name="time_9"><property name="text"><string>9点</string></property></widget></item>
+            <item row="0" column="2"><widget class="QCheckBox" name="time_10"><property name="text"><string>10点</string></property></widget></item>
+            <item row="0" column="3"><widget class="QCheckBox" name="time_11"><property name="text"><string>11点</string></property></widget></item>
+            <item row="0" column="4"><widget class="QCheckBox" name="time_12"><property name="text"><string>12点</string></property></widget></item>
+            <item row="0" column="5"><widget class="QCheckBox" name="time_13"><property name="text"><string>13点</string></property></widget></item>
+            <item row="0" column="6"><widget class="QCheckBox" name="time_14"><property name="text"><string>14点</string></property></widget></item>
+            <item row="0" column="7"><widget class="QCheckBox" name="time_15"><property name="text"><string>15点</string></property></widget></item>
+            <item row="1" column="0"><widget class="QCheckBox" name="time_16"><property name="text"><string>16点</string></property></widget></item>
+            <item row="1" column="1"><widget class="QCheckBox" name="time_17"><property name="text"><string>17点</string></property></widget></item>
+            <item row="1" column="2"><widget class="QCheckBox" name="time_18"><property name="text"><string>18点</string></property></widget></item>
+            <item row="1" column="3"><widget class="QCheckBox" name="time_19"><property name="text"><string>19点</string></property></widget></item>
+            <item row="1" column="4"><widget class="QCheckBox" name="time_20"><property name="text"><string>20点</string></property></widget></item>
+            <item row="1" column="5"><widget class="QCheckBox" name="time_21"><property name="text"><string>21点</string></property></widget></item>
+            <item row="1" column="6"><widget class="QCheckBox" name="time_22"><property name="text"><string>22点</string></property></widget></item>
+            <item row="1" column="7"><widget class="QCheckBox" name="time_23"><property name="text"><string>23点</string></property></widget></item>
+            <item row="2" column="0"><widget class="QCheckBox" name="time_0"><property name="text"><string>0点</string></property></widget></item>
+            <item row="2" column="1"><widget class="QCheckBox" name="time_1"><property name="text"><string>1点</string></property></widget></item>
+            <item row="2" column="2"><widget class="QCheckBox" name="time_2"><property name="text"><string>2点</string></property></widget></item>
+            <item row="2" column="3"><widget class="QCheckBox" name="time_3"><property name="text"><string>3点</string></property></widget></item>
+            <item row="2" column="4"><widget class="QCheckBox" name="time_4"><property name="text"><string>4点</string></property></widget></item>
+            <item row="2" column="5"><widget class="QCheckBox" name="time_5"><property name="text"><string>5点</string></property></widget></item>
+            <item row="2" column="6"><widget class="QCheckBox" name="time_6"><property name="text"><string>6点</string></property></widget></item>
+            <item row="2" column="7"><widget class="QCheckBox" name="time_7"><property name="text"><string>7点</string></property></widget></item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

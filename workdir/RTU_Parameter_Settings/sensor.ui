@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>sensor</class>
+ <widget class="QWidget" name="sensor">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1100</width>
+    <height>760</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>传感器参数</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>14</number>
+   </property>
+   <property name="leftMargin">
+    <number>12</number>
+   </property>
+   <property name="topMargin">
+    <number>12</number>
+   </property>
+   <property name="rightMargin">
+    <number>12</number>
+   </property>
+   <property name="bottomMargin">
+    <number>12</number>
+   </property>
+   <item>
+    <widget class="QFrame" name="summaryCard">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayoutSummary">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="leftMargin">
+       <number>18</number>
+      </property>
+      <property name="topMargin">
+       <number>14</number>
+      </property>
+      <property name="rightMargin">
+       <number>18</number>
+      </property>
+      <property name="bottomMargin">
+       <number>14</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="pageTitle">
+        <property name="text">
+         <string>传感器参数配置</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="pageSubtitle">
+        <property name="text">
+         <string>把新增和编辑操作集中在左侧，右侧只保留传感器列表预览，避免录入时来回跳视线。</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QSplitter" name="mainSplitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="childrenCollapsible">
+      <bool>false</bool>
+     </property>
+     <property name="handleWidth">
+      <number>10</number>
+     </property>
+     <widget class="QFrame" name="editorCard">
+      <property name="minimumSize">
+       <size>
+        <width>620</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayoutEditorCard">
+       <property name="spacing">
+        <number>12</number>
+       </property>
+       <property name="leftMargin">
+        <number>20</number>
+       </property>
+       <property name="topMargin">
+        <number>20</number>
+       </property>
+       <property name="rightMargin">
+        <number>20</number>
+       </property>
+       <property name="bottomMargin">
+        <number>20</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="labelEditorTitle">
+         <property name="text">
+          <string>传感器编辑</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelEditorHint">
+         <property name="text">
+          <string>按分组填写接入端口、采集要素、型号和告警阈值，确认后再写入右侧列表。</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="baseConfigCard">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayoutEditor">
+          <property name="leftMargin">
+           <number>18</number>
+          </property>
+          <property name="topMargin">
+           <number>18</number>
+          </property>
+          <property name="rightMargin">
+           <number>18</number>
+          </property>
+          <property name="bottomMargin">
+           <number>18</number>
+          </property>
+          <property name="horizontalSpacing">
+           <number>18</number>
+          </property>
+          <property name="verticalSpacing">
+           <number>14</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>接入端口</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="sensor_port">
+            <item><property name="text"><string/></property></item>
+            <item><property name="text"><string>开关量 S1</string></property></item>
+            <item><property name="text"><string>开关量 S2</string></property></item>
+            <item><property name="text"><string>模拟量 A1</string></property></item>
+            <item><property name="text"><string>模拟量 A2</string></property></item>
+            <item><property name="text"><string>485串口 COM3</string></property></item>
+            <item><property name="text"><string>485串口 COM4</string></property></item>
+            <item><property name="text"><string>485串口 COM5</string></property></item>
+            <item><property name="text"><string>232串口 COM1</string></property></item>
+            <item><property name="text"><string>232串口 COM2</string></property></item>
+            <item><property name="text"><string>232串口 COM5</string></property></item>
+            <item><property name="text"><string>格雷码 COM5</string></property></item>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>采集要素</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QComboBox" name="sensor_element">
+            <item><property name="text"><string/></property></item>
+            <item><property name="text"><string>瞬时气温</string></property></item>
+            <item><property name="text"><string>闸位</string></property></item>
+            <item><property name="text"><string>日降水量</string></property></item>
+            <item><property name="text"><string>当前降水量</string></property></item>
+            <item><property name="text"><string>累计降水量</string></property></item>
+            <item><property name="text"><string>瞬时流量</string></property></item>
+            <item><property name="text"><string>取水口流量1</string></property></item>
+            <item><property name="text"><string>取水口流量2</string></property></item>
+            <item><property name="text"><string>取水口流量3</string></property></item>
+            <item><property name="text"><string>取水口流量4</string></property></item>
+            <item><property name="text"><string>取水口流量5</string></property></item>
+            <item><property name="text"><string>总出库流量</string></property></item>
+            <item><property name="text"><string>累计流量</string></property></item>
+            <item><property name="text"><string>风速</string></property></item>
+            <item><property name="text"><string>平均流速</string></property></item>
+            <item><property name="text"><string>瞬时流速</string></property></item>
+            <item><property name="text"><string>瞬时河道水位</string></property></item>
+            <item><property name="text"><string>库下水位</string></property></item>
+            <item><property name="text"><string>库上水位</string></property></item>
+            <item><property name="text"><string>水位(取水口)</string></property></item>
+            <item><property name="text"><string>图片数据</string></property></item>
+            <item><property name="text"><string>10CM墒情</string></property></item>
+            <item><property name="text"><string>20CM墒情</string></property></item>
+            <item><property name="text"><string>30CM墒情</string></property></item>
+            <item><property name="text"><string>40CM墒情</string></property></item>
+            <item><property name="text"><string>50CM墒情</string></property></item>
+            <item><property name="text"><string>60CM墒情</string></property></item>
+            <item><property name="text"><string>80CM墒情</string></property></item>
+            <item><property name="text"><string>100CM墒情</string></property></item>
+            <item><property name="text"><string>水压1</string></property></item>
+            <item><property name="text"><string>水压2</string></property></item>
+            <item><property name="text"><string>水压3</string></property></item>
+            <item><property name="text"><string>水压4</string></property></item>
+            <item><property name="text"><string>水压5</string></property></item>
+            <item><property name="text"><string>水压6</string></property></item>
+            <item><property name="text"><string>水压7</string></property></item>
+            <item><property name="text"><string>水压8</string></property></item>
+            <item><property name="text"><string>水量</string></property></item>
+            <item><property name="text"><string>X位移</string></property></item>
+            <item><property name="text"><string>Y位移</string></property></item>
+            <item><property name="text"><string>Z位移</string></property></item>
+            <item><property name="text"><string>渗流</string></property></item>
+            <item><property name="text"><string>渗压水位</string></property></item>
+            <item><property name="text"><string>渗压水位1</string></property></item>
+            <item><property name="text"><string>渗压水位2</string></property></item>
+            <item><property name="text"><string>渗压水位3</string></property></item>
+            <item><property name="text"><string>渗压水位4</string></property></item>
+            <item><property name="text"><string>渗压水位5</string></property></item>
+            <item><property name="text"><string>渗压水位6</string></property></item>
+            <item><property name="text"><string>渗压水位7</string></property></item>
+            <item><property name="text"><string>渗压水位8</string></property></item>
+            <item><property name="text"><string>渗压水位9</string></property></item>
+            <item><property name="text"><string>垂直高度</string></property></item>
+            <item><property name="text"><string>频率/温度</string></property></item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>传感器型号</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="3">
+           <widget class="QComboBox" name="sensor_type">
+            <property name="minimumContentsLength">
+             <number>28</number>
+            </property>
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+            </property>
+            <item><property name="text"><string/></property></item>
+            <item><property name="text"><string>模拟器</string></property></item>
+            <item><property name="text"><string>KH.JD-05翻斗式雨量计</string></property></item>
+            <item><property name="text"><string>南京葛南GL-1量水位计</string></property></item>
+            <item><property name="text"><string>南京葛南GL-1A磁致伸缩式量水堰计</string></property></item>
+            <item><property name="text"><string>西安鹰格YGRD-65雷达水位计</string></property></item>
+            <item><property name="text"><string>可雷可克压力水位计</string></property></item>
+            <item><property name="text"><string>OTT CBS气泡水位计</string></property></item>
+            <item><property name="text"><string>北京古大GDRD56雷达水位计</string></property></item>
+            <item><property name="text"><string>徐州伟固F-05型堰槽渗流计</string></property></item>
+            <item><property name="text"><string>科鼎相机(标清)</string></property></item>
+            <item><property name="text"><string>麦克MPM47xx系列压力水位计</string></property></item>
+            <item><property name="text"><string>OTT RLS雷达水位计</string></property></item>
+            <item><property name="text"><string>亿立能气泡水位计</string></property></item>
+            <item><property name="text"><string>科鼎KH.WQX-1气泡水位计</string></property></item>
+            <item><property name="text"><string>徐州伟固FX-40浮子水位计</string></property></item>
+            <item><property name="text"><string>Spectrum SM100墒情传感器</string></property></item>
+            <item><property name="text"><string>长春EZC-1风速风向一体式传感器</string></property></item>
+            <item><property name="text"><string>武汉新绿度VQWC-21大气温度传感器</string></property></item>
+            <item><property name="text"><string>南京斯比特陶瓷压力水位计</string></property></item>
+            <item><property name="text"><string>徐州伟固WS-10闸位计</string></property></item>
+            <item><property name="text"><string>伟思浮子式水位计(RS485)</string></property></item>
+            <item><property name="text"><string>大连凯驰瑞鑫MAG-511电磁流量计</string></property></item>
+            <item><property name="text"><string>大连凯驰瑞鑫KRC-1518LLB超声波流量计</string></property></item>
+            <item><property name="text"><string>广州鼎恒水位计</string></property></item>
+            <item><property name="text"><string>三元达水质传感器</string></property></item>
+            <item><property name="text"><string>道盛TUF-2000流量计</string></property></item>
+            <item><property name="text"><string>LUFFT WS500气象传感器</string></property></item>
+            <item><property name="text"><string>WT1821温湿度传感器</string></property></item>
+            <item><property name="text"><string>科鼎相机(高清)</string></property></item>
+            <item><property name="text"><string>MCU设备</string></property></item>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>485地址</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="sensor_485"/>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>相机分辨率</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QComboBox" name="camera">
+            <item><property name="text"><string/></property></item>
+            <item><property name="text"><string>80X60</string></property></item>
+            <item><property name="text"><string>160X120</string></property></item>
+            <item><property name="text"><string>230X240</string></property></item>
+            <item><property name="text"><string>640X480</string></property></item>
+            <item><property name="text"><string>1280X1024</string></property></item>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>安装角度</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="sensor_angle"/>
+          </item>
+          <item row="3" column="2">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>基值</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="3">
+           <widget class="QLineEdit" name="sensor_base"/>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>分辨率</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="sensor_resolution"/>
+          </item>
+          <item row="4" column="2">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>告警上限</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="3">
+           <widget class="QLineEdit" name="warn_ceiling"/>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>告警下限</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QLineEdit" name="warn_lower"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="actionCard">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayoutActions">
+          <property name="spacing">
+           <number>12</number>
+          </property>
+          <property name="leftMargin">
+           <number>14</number>
+          </property>
+          <property name="topMargin">
+           <number>12</number>
+          </property>
+          <property name="rightMargin">
+           <number>14</number>
+          </property>
+          <property name="bottomMargin">
+           <number>12</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="add_sensor">
+            <property name="text">
+             <string>添加传感器</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="delete_sensor">
+            <property name="text">
+             <string>删除传感器</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="read_Button">
+            <property name="text">
+             <string>读取参数</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="huifu_Button">
+            <property name="text">
+             <string>恢复默认</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="set_Button">
+            <property name="text">
+             <string>写入参数</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QFrame" name="listCard">
+      <property name="minimumSize">
+       <size>
+        <width>360</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>500</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayoutListCard">
+       <property name="spacing">
+        <number>12</number>
+       </property>
+       <property name="leftMargin">
+        <number>20</number>
+       </property>
+       <property name="topMargin">
+        <number>20</number>
+       </property>
+       <property name="rightMargin">
+        <number>20</number>
+       </property>
+       <property name="bottomMargin">
+        <number>20</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="labelSensorListTitle">
+         <property name="text">
+          <string>传感器列表</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelSensorListHint">
+         <property name="text">
+          <string>用于预览当前已经添加的传感器。右侧保持紧凑，只承担浏览和定位作用。</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="listToolbarCard">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayoutListToolbar">
+          <property name="spacing">
+           <number>12</number>
+          </property>
+          <property name="leftMargin">
+           <number>14</number>
+          </property>
+          <property name="topMargin">
+           <number>12</number>
+          </property>
+          <property name="rightMargin">
+           <number>14</number>
+          </property>
+          <property name="bottomMargin">
+           <number>12</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="labelListCountTitle">
+            <property name="text">
+             <string>当前条目</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="labelListCountValue">
+            <property name="text">
+             <string>列表预览</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacerListToolbar">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableWidget" name="table">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>1</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::SingleSelection</enum>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="showGrid">
+          <bool>true</bool>
+         </property>
+         <attribute name="horizontalHeaderDefaultSectionSize">
+          <number>150</number>
+         </attribute>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>true</bool>
+         </attribute>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <row><property name="text"><string/></property></row>
+         <column><property name="text"><string>接入端口</string></property></column>
+         <column><property name="text"><string>传感器型号</string></property></column>
+         <column><property name="text"><string>采集要素</string></property></column>
+         <column><property name="text"><string>485地址</string></property></column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

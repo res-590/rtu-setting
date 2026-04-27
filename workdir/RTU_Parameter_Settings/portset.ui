@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>portset</class>
+ <widget class="QWidget" name="portset">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1100</width>
+    <height>760</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>端口参数</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>14</number>
+   </property>
+   <property name="leftMargin">
+    <number>12</number>
+   </property>
+   <property name="topMargin">
+    <number>12</number>
+   </property>
+   <property name="rightMargin">
+    <number>12</number>
+   </property>
+   <property name="bottomMargin">
+    <number>12</number>
+   </property>
+   <item>
+    <widget class="QFrame" name="summaryCard">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayoutSummary">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="leftMargin">
+       <number>18</number>
+      </property>
+      <property name="topMargin">
+       <number>14</number>
+      </property>
+      <property name="rightMargin">
+       <number>18</number>
+      </property>
+      <property name="bottomMargin">
+       <number>14</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="pageTitle">
+        <property name="text">
+         <string>端口参数配置</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="pageSubtitle">
+        <property name="text">
+         <string>把五个端口按设备角色拆成独立卡片，减少连续长表单带来的阅读压力。</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="actionCard">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayoutActions">
+      <property name="spacing">
+       <number>12</number>
+      </property>
+      <property name="leftMargin">
+       <number>14</number>
+      </property>
+      <property name="topMargin">
+       <number>12</number>
+      </property>
+      <property name="rightMargin">
+       <number>14</number>
+      </property>
+      <property name="bottomMargin">
+       <number>12</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="read_Button">
+        <property name="text">
+         <string>读取参数</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="set_Button">
+        <property name="text">
+         <string>写入参数</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <layout class="QVBoxLayout" name="verticalLayoutContent">
+       <property name="spacing">
+        <number>14</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <layout class="QGridLayout" name="gridLayoutPorts">
+         <property name="horizontalSpacing">
+          <number>14</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>14</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QFrame" name="port1Card">
+           <property name="frameShape"><enum>QFrame::StyledPanel</enum></property>
+           <layout class="QFormLayout" name="formLayoutPort1">
+            <property name="fieldGrowthPolicy"><enum>QFormLayout::AllNonFixedFieldsGrow</enum></property>
+            <property name="horizontalSpacing"><number>16</number></property>
+            <property name="verticalSpacing"><number>12</number></property>
+            <property name="leftMargin"><number>18</number></property>
+            <property name="topMargin"><number>18</number></property>
+            <property name="rightMargin"><number>18</number></property>
+            <property name="bottomMargin"><number>18</number></property>
+            <item row="0" column="0"><widget class="QLabel" name="label_12"><property name="text"><string>COM1</string></property></widget></item>
+            <item row="0" column="1"><widget class="QLabel" name="labelPort1Hint"><property name="text"><string>主通信端口</string></property></widget></item>
+            <item row="1" column="0"><widget class="QLabel" name="label_13"><property name="text"><string>设备类型</string></property></widget></item>
+            <item row="1" column="1"><widget class="QComboBox" name="equit_type1"><item><property name="text"><string/></property></item><item><property name="text"><string>内置DTU</string></property></item><item><property name="text"><string>外置DTU(RDP)</string></property></item><item><property name="text"><string>外置DTU(KH)</string></property></item><item><property name="text"><string>北斗卫星</string></property></item><item><property name="text"><string>超短波</string></property></item><item><property name="text"><string>SMS DTU</string></property></item><item><property name="text"><string>外置DTU(透传)</string></property></item><item><property name="text"><string>RF</string></property></item><item><property name="text"><string>IC卡</string></property></item><item><property name="text"><string>外部设备读取RTU传感器参数</string></property></item><item><property name="text"><string>RS485传感器</string></property></item><item><property name="text"><string>RS232传感器</string></property></item><item><property name="text"><string>格雷码传感器</string></property></item><item><property name="text"><string>摄像头</string></property></item></widget></item>
+            <item row="2" column="0"><widget class="QLabel" name="label_16"><property name="text"><string>波特率</string></property></widget></item>
+            <item row="2" column="1"><widget class="QComboBox" name="baud_rate1"><item><property name="text"><string/></property></item><item><property name="text"><string>300bps</string></property></item><item><property name="text"><string>600bps</string></property></item><item><property name="text"><string>1200bps</string></property></item><item><property name="text"><string>2400bps</string></property></item><item><property name="text"><string>4800bps</string></property></item><item><property name="text"><string>9600bps</string></property></item><item><property name="text"><string>19200bps</string></property></item><item><property name="text"><string>38400bps</string></property></item><item><property name="text"><string>57600bps</string></property></item><item><property name="text"><string>115200bps</string></property></item></widget></item>
+            <item row="3" column="0"><widget class="QLabel" name="label_15"><property name="text"><string>RF频点</string></property></widget></item>
+            <item row="3" column="1"><widget class="QComboBox" name="RF1"><item><property name="text"><string/></property></item><item><property name="text"><string>频点1</string></property></item><item><property name="text"><string>频点2</string></property></item><item><property name="text"><string>频点3</string></property></item><item><property name="text"><string>频点4</string></property></item><item><property name="text"><string>频点5</string></property></item><item><property name="text"><string>频点6</string></property></item><item><property name="text"><string>频点7</string></property></item><item><property name="text"><string>频点8</string></property></item></widget></item>
+            <item row="4" column="0"><widget class="QLabel" name="label_14"><property name="text"><string>保留</string></property></widget></item>
+            <item row="4" column="1"><widget class="QLineEdit" name="keep1"/></item>
+           </layout>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QFrame" name="port2Card">
+           <property name="frameShape"><enum>QFrame::StyledPanel</enum></property>
+           <layout class="QFormLayout" name="formLayoutPort2">
+            <property name="fieldGrowthPolicy"><enum>QFormLayout::AllNonFixedFieldsGrow</enum></property>
+            <property name="horizontalSpacing"><number>16</number></property>
+            <property name="verticalSpacing"><number>12</number></property>
+            <property name="leftMargin"><number>18</number></property>
+            <property name="topMargin"><number>18</number></property>
+            <property name="rightMargin"><number>18</number></property>
+            <property name="bottomMargin"><number>18</number></property>
+            <item row="0" column="0"><widget class="QLabel" name="label_20"><property name="text"><string>COM2</string></property></widget></item>
+            <item row="0" column="1"><widget class="QLabel" name="labelPort2Hint"><property name="text"><string>扩展端口</string></property></widget></item>
+            <item row="1" column="0"><widget class="QLabel" name="label_18"><property name="text"><string>设备类型</string></property></widget></item>
+            <item row="1" column="1"><widget class="QComboBox" name="equit_type2"><item><property name="text"><string/></property></item><item><property name="text"><string>内置DTU</string></property></item><item><property name="text"><string>外置DTU(RDP)</string></property></item><item><property name="text"><string>外置DTU(KH)</string></property></item><item><property name="text"><string>北斗卫星</string></property></item><item><property name="text"><string>超短波</string></property></item><item><property name="text"><string>SMS DTU</string></property></item><item><property name="text"><string>外置DTU(透传)</string></property></item><item><property name="text"><string>RF</string></property></item><item><property name="text"><string>IC卡</string></property></item><item><property name="text"><string>外部设备读取RTU传感器参数</string></property></item><item><property name="text"><string>RS485传感器</string></property></item><item><property name="text"><string>RS232传感器</string></property></item><item><property name="text"><string>格雷码传感器</string></property></item><item><property name="text"><string>摄像头</string></property></item></widget></item>
+            <item row="2" column="0"><widget class="QLabel" name="label_19"><property name="text"><string>波特率</string></property></widget></item>
+            <item row="2" column="1"><widget class="QComboBox" name="baud_rate2"><item><property name="text"><string/></property></item><item><property name="text"><string>300bps</string></property></item><item><property name="text"><string>600bps</string></property></item><item><property name="text"><string>1200bps</string></property></item><item><property name="text"><string>2400bps</string></property></item><item><property name="text"><string>4800bps</string></property></item><item><property name="text"><string>9600bps</string></property></item><item><property name="text"><string>19200bps</string></property></item><item><property name="text"><string>38400bps</string></property></item><item><property name="text"><string>57600bps</string></property></item><item><property name="text"><string>115200bps</string></property></item></widget></item>
+            <item row="3" column="0"><widget class="QLabel" name="label_17"><property name="text"><string>RF频点</string></property></widget></item>
+            <item row="3" column="1"><widget class="QComboBox" name="RF2"><item><property name="text"><string/></property></item><item><property name="text"><string>频点1</string></property></item><item><property name="text"><string>频点2</string></property></item><item><property name="text"><string>频点3</string></property></item><item><property name="text"><string>频点4</string></property></item><item><property name="text"><string>频点5</string></property></item><item><property name="text"><string>频点6</string></property></item><item><property name="text"><string>频点7</string></property></item><item><property name="text"><string>频点8</string></property></item></widget></item>
+            <item row="4" column="0"><widget class="QLabel" name="label_21"><property name="text"><string>保留</string></property></widget></item>
+            <item row="4" column="1"><widget class="QLineEdit" name="keep2"/></item>
+           </layout>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QFrame" name="port3Card">
+           <property name="frameShape"><enum>QFrame::StyledPanel</enum></property>
+           <layout class="QFormLayout" name="formLayoutPort3">
+            <property name="fieldGrowthPolicy"><enum>QFormLayout::AllNonFixedFieldsGrow</enum></property>
+            <property name="horizontalSpacing"><number>16</number></property>
+            <property name="verticalSpacing"><number>12</number></property>
+            <property name="leftMargin"><number>18</number></property>
+            <property name="topMargin"><number>18</number></property>
+            <property name="rightMargin"><number>18</number></property>
+            <property name="bottomMargin"><number>18</number></property>
+            <item row="0" column="0"><widget class="QLabel" name="label_25"><property name="text"><string>COM3</string></property></widget></item>
+            <item row="0" column="1"><widget class="QLabel" name="labelPort3Hint"><property name="text"><string>采集端口</string></property></widget></item>
+            <item row="1" column="0"><widget class="QLabel" name="label_23"><property name="text"><string>设备类型</string></property></widget></item>
+            <item row="1" column="1"><widget class="QComboBox" name="equit_type3"><item><property name="text"><string/></property></item><item><property name="text"><string>内置DTU</string></property></item><item><property name="text"><string>外置DTU(RDP)</string></property></item><item><property name="text"><string>外置DTU(KH)</string></property></item><item><property name="text"><string>北斗卫星</string></property></item><item><property name="text"><string>超短波</string></property></item><item><property name="text"><string>SMS DTU</string></property></item><item><property name="text"><string>外置DTU(透传)</string></property></item><item><property name="text"><string>RF</string></property></item><item><property name="text"><string>IC卡</string></property></item><item><property name="text"><string>外部设备读取RTU传感器参数</string></property></item><item><property name="text"><string>RS485传感器</string></property></item><item><property name="text"><string>RS232传感器</string></property></item><item><property name="text"><string>格雷码传感器</string></property></item><item><property name="text"><string>摄像头</string></property></item></widget></item>
+            <item row="2" column="0"><widget class="QLabel" name="label_24"><property name="text"><string>波特率</string></property></widget></item>
+            <item row="2" column="1"><widget class="QComboBox" name="baud_rate3"><item><property name="text"><string/></property></item><item><property name="text"><string>300bps</string></property></item><item><property name="text"><string>600bps</string></property></item><item><property name="text"><string>1200bps</string></property></item><item><property name="text"><string>2400bps</string></property></item><item><property name="text"><string>4800bps</string></property></item><item><property name="text"><string>9600bps</string></property></item><item><property name="text"><string>19200bps</string></property></item><item><property name="text"><string>38400bps</string></property></item><item><property name="text"><string>57600bps</string></property></item><item><property name="text"><string>115200bps</string></property></item></widget></item>
+            <item row="3" column="0"><widget class="QLabel" name="label_22"><property name="text"><string>RF频点</string></property></widget></item>
+            <item row="3" column="1"><widget class="QComboBox" name="RF3"><item><property name="text"><string/></property></item><item><property name="text"><string>频点1</string></property></item><item><property name="text"><string>频点2</string></property></item><item><property name="text"><string>频点3</string></property></item><item><property name="text"><string>频点4</string></property></item><item><property name="text"><string>频点5</string></property></item><item><property name="text"><string>频点6</string></property></item><item><property name="text"><string>频点7</string></property></item><item><property name="text"><string>频点8</string></property></item></widget></item>
+            <item row="4" column="0"><widget class="QLabel" name="label_26"><property name="text"><string>保留</string></property></widget></item>
+            <item row="4" column="1"><widget class="QLineEdit" name="keep3"/></item>
+           </layout>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QFrame" name="port4Card">
+           <property name="frameShape"><enum>QFrame::StyledPanel</enum></property>
+           <layout class="QFormLayout" name="formLayoutPort4">
+            <property name="fieldGrowthPolicy"><enum>QFormLayout::AllNonFixedFieldsGrow</enum></property>
+            <property name="horizontalSpacing"><number>16</number></property>
+            <property name="verticalSpacing"><number>12</number></property>
+            <property name="leftMargin"><number>18</number></property>
+            <property name="topMargin"><number>18</number></property>
+            <property name="rightMargin"><number>18</number></property>
+            <property name="bottomMargin"><number>18</number></property>
+            <item row="0" column="0"><widget class="QLabel" name="label_30"><property name="text"><string>COM4</string></property></widget></item>
+            <item row="0" column="1"><widget class="QLabel" name="labelPort4Hint"><property name="text"><string>外设接口</string></property></widget></item>
+            <item row="1" column="0"><widget class="QLabel" name="label_28"><property name="text"><string>设备类型</string></property></widget></item>
+            <item row="1" column="1"><widget class="QComboBox" name="equit_type4"><item><property name="text"><string/></property></item><item><property name="text"><string>内置DTU</string></property></item><item><property name="text"><string>外置DTU(RDP)</string></property></item><item><property name="text"><string>外置DTU(KH)</string></property></item><item><property name="text"><string>北斗卫星</string></property></item><item><property name="text"><string>超短波</string></property></item><item><property name="text"><string>SMS DTU</string></property></item><item><property name="text"><string>外置DTU(透传)</string></property></item><item><property name="text"><string>RF</string></property></item><item><property name="text"><string>IC卡</string></property></item><item><property name="text"><string>外部设备读取RTU传感器参数</string></property></item><item><property name="text"><string>RS485传感器</string></property></item><item><property name="text"><string>RS232传感器</string></property></item><item><property name="text"><string>格雷码传感器</string></property></item><item><property name="text"><string>摄像头</string></property></item></widget></item>
+            <item row="2" column="0"><widget class="QLabel" name="label_29"><property name="text"><string>波特率</string></property></widget></item>
+            <item row="2" column="1"><widget class="QComboBox" name="baud_rate4"><item><property name="text"><string/></property></item><item><property name="text"><string>300bps</string></property></item><item><property name="text"><string>600bps</string></property></item><item><property name="text"><string>1200bps</string></property></item><item><property name="text"><string>2400bps</string></property></item><item><property name="text"><string>4800bps</string></property></item><item><property name="text"><string>9600bps</string></property></item><item><property name="text"><string>19200bps</string></property></item><item><property name="text"><string>38400bps</string></property></item><item><property name="text"><string>57600bps</string></property></item><item><property name="text"><string>115200bps</string></property></item></widget></item>
+            <item row="3" column="0"><widget class="QLabel" name="label_27"><property name="text"><string>RF频点</string></property></widget></item>
+            <item row="3" column="1"><widget class="QComboBox" name="RF4"><item><property name="text"><string/></property></item><item><property name="text"><string>频点1</string></property></item><item><property name="text"><string>频点2</string></property></item><item><property name="text"><string>频点3</string></property></item><item><property name="text"><string>频点4</string></property></item><item><property name="text"><string>频点5</string></property></item><item><property name="text"><string>频点6</string></property></item><item><property name="text"><string>频点7</string></property></item><item><property name="text"><string>频点8</string></property></item></widget></item>
+            <item row="4" column="0"><widget class="QLabel" name="label_31"><property name="text"><string>保留</string></property></widget></item>
+            <item row="4" column="1"><widget class="QLineEdit" name="keep4"/></item>
+           </layout>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="2">
+          <widget class="QFrame" name="port5Card">
+           <property name="frameShape"><enum>QFrame::StyledPanel</enum></property>
+           <layout class="QFormLayout" name="formLayoutPort5">
+            <property name="fieldGrowthPolicy"><enum>QFormLayout::AllNonFixedFieldsGrow</enum></property>
+            <property name="horizontalSpacing"><number>16</number></property>
+            <property name="verticalSpacing"><number>12</number></property>
+            <property name="leftMargin"><number>18</number></property>
+            <property name="topMargin"><number>18</number></property>
+            <property name="rightMargin"><number>18</number></property>
+            <property name="bottomMargin"><number>18</number></property>
+            <item row="0" column="0"><widget class="QLabel" name="label_35"><property name="text"><string>COM5</string></property></widget></item>
+            <item row="0" column="1"><widget class="QLabel" name="labelPort5Hint"><property name="text"><string>保留 / 兼容端口</string></property></widget></item>
+            <item row="1" column="0"><widget class="QLabel" name="label_33"><property name="text"><string>设备类型</string></property></widget></item>
+            <item row="1" column="1"><widget class="QComboBox" name="equit_type5"><item><property name="text"><string/></property></item><item><property name="text"><string>内置DTU</string></property></item><item><property name="text"><string>外置DTU(RDP)</string></property></item><item><property name="text"><string>外置DTU(KH)</string></property></item><item><property name="text"><string>北斗卫星</string></property></item><item><property name="text"><string>超短波</string></property></item><item><property name="text"><string>SMS DTU</string></property></item><item><property name="text"><string>外置DTU(透传)</string></property></item><item><property name="text"><string>RF</string></property></item><item><property name="text"><string>IC卡</string></property></item><item><property name="text"><string>外部设备读取RTU传感器参数</string></property></item><item><property name="text"><string>RS485传感器</string></property></item><item><property name="text"><string>RS232传感器</string></property></item><item><property name="text"><string>格雷码传感器</string></property></item><item><property name="text"><string>摄像头</string></property></item></widget></item>
+            <item row="2" column="0"><widget class="QLabel" name="label_34"><property name="text"><string>波特率</string></property></widget></item>
+            <item row="2" column="1"><widget class="QComboBox" name="baud_rate5"><item><property name="text"><string/></property></item><item><property name="text"><string>300bps</string></property></item><item><property name="text"><string>600bps</string></property></item><item><property name="text"><string>1200bps</string></property></item><item><property name="text"><string>2400bps</string></property></item><item><property name="text"><string>4800bps</string></property></item><item><property name="text"><string>9600bps</string></property></item><item><property name="text"><string>19200bps</string></property></item><item><property name="text"><string>38400bps</string></property></item><item><property name="text"><string>57600bps</string></property></item><item><property name="text"><string>115200bps</string></property></item></widget></item>
+            <item row="3" column="0"><widget class="QLabel" name="label_32"><property name="text"><string>RF频点</string></property></widget></item>
+            <item row="3" column="1"><widget class="QComboBox" name="RF5"><item><property name="text"><string/></property></item><item><property name="text"><string>频点1</string></property></item><item><property name="text"><string>频点2</string></property></item><item><property name="text"><string>频点3</string></property></item><item><property name="text"><string>频点4</string></property></item><item><property name="text"><string>频点5</string></property></item><item><property name="text"><string>频点6</string></property></item><item><property name="text"><string>频点7</string></property></item><item><property name="text"><string>频点8</string></property></item></widget></item>
+            <item row="4" column="0"><widget class="QLabel" name="label_36"><property name="text"><string>保留</string></property></widget></item>
+            <item row="4" column="1"><widget class="QLineEdit" name="keep5"/></item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

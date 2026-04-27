@@ -1,0 +1,6 @@
+[Update]
+Enabled=true
+AutoCheckOnStartup=true
+RequestTimeoutMs=15000
+ManifestUrl=https://raw.githubusercontent.com/your-user/your-repo/main/update/update_manifest.json
+UpdaterExecutable=updater.exe
