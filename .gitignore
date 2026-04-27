@@ -32,3 +32,4 @@ workdir/RTU_Parameter_Settings/*.dll
 workdir/RTU_Parameter_Settings/test.txt
 workdir/RTU_Parameter_Settings/build-*/
 workdir/build-*/
+workdir/RTU_Parameter_Settings/publish/
