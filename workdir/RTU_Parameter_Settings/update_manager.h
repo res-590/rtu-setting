@@ -34,7 +34,7 @@ private:
     struct UpdateConfig {
         bool enabled = false;
         bool autoCheckOnStartup = true;
-        int requestTimeoutMs = 15000;
+        int requestTimeoutMs = 120000;
         QUrl manifestUrl;
         QString updaterExecutableName;
     };

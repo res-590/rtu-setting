@@ -93,7 +93,7 @@ void MainWindow::setupShellUi()
     ui->logTitleLabel->setText(QStringLiteral("接收日志"));
     ui->statusTitleLabel->setText(QStringLiteral("设备连接状态"));
     if (m_logView) {
-        m_logView->setPlainText(QStringLiteral("串口接收报文后，这里会实时显示接收内容和解析结果。\r\n"));
+        m_logView->clear();
     }
 
     ui->headerFrame->setMinimumHeight(118);

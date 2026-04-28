@@ -69,6 +69,14 @@ QString describeNetworkError(QNetworkReply *reply)
     parts << QStringLiteral("地址：%1").arg(reply->url().toString());
     return parts.join(QStringLiteral("，"));
 }
+void prepareNetworkRequest(QNetworkRequest &request, int timeoutMs)
+{
+    request.setTransferTimeout(timeoutMs);
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
+                         QNetworkRequest::NoLessSafeRedirectPolicy);
+    request.setHeader(QNetworkRequest::UserAgentHeader,
+                      QStringLiteral("RTU_Parameter_Config_Tool Updater"));
+}
 }
 
 UpdateManager::UpdateManager(QWidget *ownerWidget, QObject *parent)
@@ -133,11 +141,13 @@ void UpdateManager::checkForUpdates(bool manual)
     }
 
     m_manualCheck = manual;
-    appendLog(QStringLiteral("[更新] 使用配置：%1").arg(m_loadedConfigPath));
-    appendLog(QStringLiteral("[更新] 开始检查版本：%1").arg(m_config.manifestUrl.toString()));
+    if (manual) {
+        appendLog(QStringLiteral("[更新] 使用配置：%1").arg(m_loadedConfigPath));
+        appendLog(QStringLiteral("[更新] 开始检查版本：%1").arg(m_config.manifestUrl.toString()));
+    }
 
     QNetworkRequest request(m_config.manifestUrl);
-    request.setTransferTimeout(m_config.requestTimeoutMs);
+    prepareNetworkRequest(request, m_config.requestTimeoutMs);
     m_manifestReply = m_networkManager->get(request);
     connect(m_manifestReply, &QNetworkReply::finished, this, &UpdateManager::handleManifestReply);
 }
@@ -186,7 +196,9 @@ void UpdateManager::handleManifestReply()
         m_availableManifest = UpdateManifest();
         m_hasPendingUpdate = false;
         emit updateAvailabilityChanged(false, QString());
-        appendLog(QStringLiteral("[更新] 当前已是最新版本：%1").arg(QCoreApplication::applicationVersion()));
+        if (manual) {
+            appendLog(QStringLiteral("[更新] 当前已是最新版本：%1").arg(QCoreApplication::applicationVersion()));
+        }
         if (manual) {
             showInfoMessage(QStringLiteral("检查更新"),
                             QStringLiteral("当前已是最新版本：%1").arg(QCoreApplication::applicationVersion()));
@@ -199,8 +211,6 @@ void UpdateManager::handleManifestReply()
     emit updateAvailabilityChanged(true, manifest.version);
 
     if (!manual) {
-        appendLog(QStringLiteral("[更新] 检测到新版本 %1，已等待用户手动下载")
-                      .arg(manifest.version));
         return;
     }
 
@@ -321,7 +331,7 @@ bool UpdateManager::loadConfig()
 
     m_config.enabled = settings.value(QStringLiteral("Update/Enabled"), true).toBool();
     m_config.autoCheckOnStartup = settings.value(QStringLiteral("Update/AutoCheckOnStartup"), true).toBool();
-    m_config.requestTimeoutMs = settings.value(QStringLiteral("Update/RequestTimeoutMs"), 15000).toInt();
+    m_config.requestTimeoutMs = settings.value(QStringLiteral("Update/RequestTimeoutMs"), 120000).toInt();
     m_config.updaterExecutableName = settings.value(QStringLiteral("Update/UpdaterExecutable"),
                                                     APP_UPDATER_EXE_LITERAL).toString().trimmed();
 
@@ -408,7 +418,7 @@ void UpdateManager::downloadPackage(const UpdateManifest &manifest)
                   .arg(manifest.version, manifest.packageUrl.toString()));
 
     QNetworkRequest request(manifest.packageUrl);
-    request.setTransferTimeout(m_config.requestTimeoutMs);
+    prepareNetworkRequest(request, m_config.requestTimeoutMs);
     m_packageReply = m_networkManager->get(request);
     connect(m_packageReply, &QNetworkReply::downloadProgress,
             this, &UpdateManager::handlePackageProgress);
