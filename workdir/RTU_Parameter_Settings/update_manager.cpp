@@ -78,6 +78,11 @@ UpdateManager::UpdateManager(QWidget *ownerWidget, QObject *parent)
 {
 }
 
+bool UpdateManager::hasPendingUpdate() const
+{
+    return m_hasPendingUpdate;
+}
+
 void UpdateManager::scheduleStartupCheck()
 {
     if (!loadConfig() || !m_config.enabled || !m_config.autoCheckOnStartup) {
@@ -91,6 +96,11 @@ void UpdateManager::scheduleStartupCheck()
 
 void UpdateManager::checkForUpdates(bool manual)
 {
+    if (manual && m_hasPendingUpdate && m_availableManifest.packageUrl.isValid()) {
+        downloadPackage(m_availableManifest);
+        return;
+    }
+
     if (!loadConfig()) {
         if (manual) {
             showInfoMessage(QStringLiteral("检查更新"),
@@ -173,11 +183,24 @@ void UpdateManager::handleManifestReply()
     }
 
     if (!isNewerVersion(manifest.version)) {
+        m_availableManifest = UpdateManifest();
+        m_hasPendingUpdate = false;
+        emit updateAvailabilityChanged(false, QString());
         appendLog(QStringLiteral("[更新] 当前已是最新版本：%1").arg(QCoreApplication::applicationVersion()));
         if (manual) {
             showInfoMessage(QStringLiteral("检查更新"),
                             QStringLiteral("当前已是最新版本：%1").arg(QCoreApplication::applicationVersion()));
         }
+        return;
+    }
+
+    m_availableManifest = manifest;
+    m_hasPendingUpdate = true;
+    emit updateAvailabilityChanged(true, manifest.version);
+
+    if (!manual) {
+        appendLog(QStringLiteral("[更新] 检测到新版本 %1，已等待用户手动下载")
+                      .arg(manifest.version));
         return;
     }
 
@@ -369,6 +392,9 @@ bool UpdateManager::isNewerVersion(const QString &candidateVersion) const
 void UpdateManager::downloadPackage(const UpdateManifest &manifest)
 {
     m_pendingManifest = manifest;
+    m_availableManifest = manifest;
+    m_hasPendingUpdate = false;
+    emit updateAvailabilityChanged(false, QString());
 
     const QString tempRoot = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
     const QString downloadDir = QDir(tempRoot).filePath(APP_PRODUCT_ID_LITERAL + QStringLiteral("/updates"));

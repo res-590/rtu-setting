@@ -1,6 +1,6 @@
 [Update]
 Enabled=true
-AutoCheckOnStartup=false
+AutoCheckOnStartup=true
 RequestTimeoutMs=15000
 ManifestUrl=https://raw.githubusercontent.com/res-590/rtu-setting/main/workdir/RTU_Parameter_Settings/update/update_manifest.json
 UpdaterExecutable=updater.exe

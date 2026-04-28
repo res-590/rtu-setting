@@ -2,7 +2,9 @@
 #include "RTU_ParameterSetting.h"
 #include "ui_dtuset.h"
 #include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
+#include <QComboBox>
 
 namespace {
 QString primaryButtonStyle()
@@ -40,6 +42,15 @@ dtuset::dtuset(QWidget *parent) :
     setLabelText("labelBaseTitle", QStringLiteral("基础通信配置"));
     setLabelText("pageHeaderBadgeValue", QStringLiteral("快速操作"));
     setLabelText("tableHintLabel", QStringLiteral("建议先读取当前参数，再按通道逐项修改。"));
+    for (QLineEdit *edit : findChildren<QLineEdit *>()) {
+        edit->setMinimumHeight(30);
+    }
+    for (QComboBox *combo : findChildren<QComboBox *>()) {
+        combo->setMinimumHeight(30);
+    }
+    for (QPushButton *button : findChildren<QPushButton *>()) {
+        button->setMinimumHeight(32);
+    }
     memset(&dtuinfo.DTU_info,0,sizeof(dtuinfo.DTU_info));
     hide();
 }

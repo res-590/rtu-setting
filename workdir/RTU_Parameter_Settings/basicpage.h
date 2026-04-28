@@ -50,6 +50,7 @@ private:
     QString decodePackedDecimal(const std::vector<uint8_t> &data, uint index, int byteLen, int fracDigits) const;
     void clearFormValues();
     void setHourSelection(int step, int startHour = 0);
+    int selectedDayStartHour() const;
     void checkBox_TPzb();
     void setWorkMode(int workType);
     QString testAddrToDeviceId(const uint8_t testaddr[5]) const;

@@ -1,6 +1,6 @@
 ﻿{
-    "version":  "1.0.2",
-    "url":  "https://github.com/res-590/rtu-setting/releases/download/v1.0.2/RTU_Parameter_Config_Tool-1.0.2.zip",
-    "sha256":  "291c357183bef5ba62975d9cfa7bb785f194503dfee773a2b82bd873870bd06d",
-    "notes":  "1. 关闭启动自动检查更新，仅手动触发\r\n2. 优化在线升级下载进度显示\r\n3. 屏蔽 AFN 0x34 运行参数异步返回日志刷屏"
+    "version":  "1.0.3",
+    "url":  "https://github.com/res-590/rtu-setting/releases/download/v1.0.3/RTU_Parameter_Config_Tool-1.0.3.zip",
+    "sha256":  "05bf474a0e2a96b506e59f6a7b96301f6453e6e6abda24e4d2d3c821597e1e3d",
+    "notes":  "1. 修正基础参数页“中心站地址”文案\n2. 每三小时快捷选择固定按 8 点起算\n3. 日志中的 AFN 0x2F 统一显示为“链路维持报”\n4. 基础参数页控件间距和尺寸更紧凑\n5. 启动后自动检查新版本，检测到更新时按钮变红并显示“下载更新”\n6. 修复远程升级报文构造、密码使用与取消升级流程"
 }

@@ -38,9 +38,36 @@ QString formatHexWithSpaces(const QByteArray &data)
     return QString::fromLatin1(data.toHex(' ').toUpper());
 }
 
+QByteArray currentFramePayload()
+{
+    if (m_RTU_ParameterSetting == nullptr) {
+        return {};
+    }
+
+    const uint16_t datelen =
+        (static_cast<uint16_t>(m_RTU_ParameterSetting->m_recivemessage.messageByte[11]) << 8) |
+        static_cast<uint16_t>(m_RTU_ParameterSetting->m_recivemessage.messageByte[12]);
+    const uint16_t totalLen = datelen + 15;
+    if (totalLen < 23 || m_RTU_ParameterSetting->rMessageLen < totalLen) {
+        return {};
+    }
+
+    return QByteArray(reinterpret_cast<const char *>(m_RTU_ParameterSetting->m_recivemessage.messageByte + 22),
+                      totalLen - 23);
+}
+
+bool isUpgradeOkFrame()
+{
+    const QByteArray payload = currentFramePayload();
+    return !payload.isEmpty() &&
+           static_cast<uint8_t>(payload.at(0)) == AFN_UPGRADERTU;
+}
+
 QString afnDescription(uint8_t afn)
 {
     switch (afn) {
+    case 0x00:
+        return QStringLiteral("ACK");
     case AFN_SETRTUPARAM:
         return QStringLiteral("设置 DTU 参数");
     case AFN_SETDTUPARAM:
@@ -78,7 +105,7 @@ QString afnDescription(uint8_t afn)
     case AFN_UPGRADERTU:
         return QStringLiteral("远程升级");
     case 0x2F:
-        return QStringLiteral("学习帧");
+        return QStringLiteral("链路维持报");
     case 0x30:
         return QStringLiteral("传感器相关返回");
     case 0x34:
@@ -327,12 +354,18 @@ void Device_connection::dispatchCurrentMessage()
         if (m_RTU_ParameterSetting->m_runtimePage != nullptr) {
             m_RTU_ParameterSetting->m_runtimePage->handleUpgradeResponse();
         }
+    } else if (afn == 0x00) {
+        if (m_RTU_ParameterSetting->m_runtimePage != nullptr && isUpgradeOkFrame()) {
+            m_RTU_ParameterSetting->m_runtimePage->handleUpgradeResponse();
+        } else if (!suppressReceiveLog) {
+            appendRuntimeLog(ui, QStringLiteral("Unhandled frame: %1\r\n").arg(afnLabel(afn)));
+        }
     } else if (afn == 0x2F) {
         if (m_RTU_ParameterSetting->isbasedate &&
             !m_RTU_ParameterSetting->baseReadRetriedAfterLearn &&
             m_RTU_ParameterSetting->m_basicPage != nullptr) {
             m_RTU_ParameterSetting->baseReadRetriedAfterLearn = true;
-            appendRuntimeLog(ui, QStringLiteral("已根据学习帧自动重试基础参数读取\r\n"));
+            appendRuntimeLog(ui, QStringLiteral("已根据链路维持报自动重试基础参数读取\r\n"));
             m_RTU_ParameterSetting->m_basicPage->requestBaseParamRead();
         } else if (!suppressReceiveLog) {
             appendRuntimeLog(ui, QStringLiteral("未处理报文：%1\r\n").arg(afnLabel(afn)));

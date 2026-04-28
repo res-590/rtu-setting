@@ -20,6 +20,10 @@ public:
 
     void scheduleStartupCheck();
     void checkForUpdates(bool manual);
+    bool hasPendingUpdate() const;
+
+signals:
+    void updateAvailabilityChanged(bool available, const QString &version);
 
 private slots:
     void handleManifestReply();
@@ -60,9 +64,11 @@ private:
     QPointer<QNetworkReply> m_packageReply;
     UpdateConfig m_config;
     UpdateManifest m_pendingManifest;
+    UpdateManifest m_availableManifest;
     QString m_downloadedPackagePath;
     QString m_loadedConfigPath;
     bool m_manualCheck = false;
+    bool m_hasPendingUpdate = false;
     qint64 m_lastProgressBytes = -1;
     qint64 m_lastProgressTotal = -1;
 };

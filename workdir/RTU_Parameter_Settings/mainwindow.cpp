@@ -47,6 +47,10 @@ MainWindow::MainWindow(QWidget *parent)
     updateConnectionStatus(false);
 
     m_updateManager = new UpdateManager(this, this);
+    connect(m_updateManager, &UpdateManager::updateAvailabilityChanged,
+            this, &MainWindow::updateUpdateButtonState);
+    refreshUpdateButtonAppearance(false);
+    m_updateManager->scheduleStartupCheck();
 }
 
 MainWindow::~MainWindow()
@@ -218,16 +222,16 @@ void MainWindow::applyShellStyle()
         "padding:12px 18px;color:#1e3a5f;min-width:140px;min-height:24px;font-size:14px;font-weight:600;}"
         "QListWidget#navListWidget::item:selected{background:#2f78e8;border:1px solid #2f78e8;color:#ffffff;}"
         "QListWidget#navListWidget::item:hover{background:#dbeafe;border:1px solid #9ec5fe;}"
-        "QPushButton{background:#2f78e8;color:#ffffff;border:none;border-radius:6px;padding:8px 18px;"
-        "min-height:40px;font-size:14px;font-weight:600;}"
+        "QPushButton{background:#2f78e8;color:#ffffff;border:none;border-radius:6px;padding:6px 14px;"
+        "min-height:34px;font-size:14px;font-weight:600;}"
         "QPushButton:hover{background:#2468cc;}"
         "QPushButton:pressed{background:#1d57aa;}"
         "QPushButton:disabled{background:#b8c7db;color:#eef2f7;}"
         "QPushButton#BackButton{background:#ffffff;color:#2f78e8;border:1px solid #bfd4f6;}"
         "QPushButton#BackButton:hover{background:#edf4ff;}"
-        "QPlainTextEdit,QTextEdit{background:#f8fbff;border:1px solid #d8e2f0;border-radius:8px;padding:8px;}"
-        "QComboBox,QLineEdit,QSpinBox,QDoubleSpinBox,QDateTimeEdit{min-height:34px;border:1px solid #cbd5e1;"
-        "border-radius:6px;padding:4px 10px;background:#ffffff;}"
+        "QPlainTextEdit,QTextEdit{background:#f8fbff;border:1px solid #d8e2f0;border-radius:8px;padding:6px;}"
+        "QComboBox,QLineEdit,QSpinBox,QDoubleSpinBox,QDateTimeEdit{min-height:30px;border:1px solid #cbd5e1;"
+        "border-radius:6px;padding:3px 8px;background:#ffffff;}"
     ));
 }
 
@@ -250,4 +254,39 @@ void MainWindow::triggerUpdateCheck()
     if (m_updateManager != nullptr) {
         m_updateManager->checkForUpdates(true);
     }
+}
+
+void MainWindow::updateUpdateButtonState(bool available, const QString &version)
+{
+    refreshUpdateButtonAppearance(available, version);
+}
+
+void MainWindow::refreshUpdateButtonAppearance(bool available, const QString &version)
+{
+    if (m_updateButton == nullptr) {
+        return;
+    }
+
+    if (available) {
+        m_updateButton->setText(QStringLiteral("下载更新"));
+        QString toolTip = QStringLiteral("检测到新版本");
+        if (!version.trimmed().isEmpty()) {
+            toolTip += QStringLiteral("：%1").arg(version.trimmed());
+        }
+        m_updateButton->setToolTip(toolTip);
+        m_updateButton->setStyleSheet(QStringLiteral(
+            "QPushButton{background:#d92d20;color:#ffffff;border:none;border-radius:6px;padding:6px 14px;min-height:34px;font-size:14px;font-weight:700;}"
+            "QPushButton:hover{background:#b42318;}"
+            "QPushButton:pressed{background:#912018;}"
+            "QPushButton:disabled{background:#fda29b;color:#fff1f3;}"));
+        return;
+    }
+
+    m_updateButton->setText(QStringLiteral("检查更新"));
+    m_updateButton->setToolTip(QString());
+    m_updateButton->setStyleSheet(QStringLiteral(
+        "QPushButton{background:#2f78e8;color:#ffffff;border:none;border-radius:6px;padding:6px 14px;min-height:34px;font-size:14px;font-weight:600;}"
+        "QPushButton:hover{background:#2468cc;}"
+        "QPushButton:pressed{background:#1d57aa;}"
+        "QPushButton:disabled{background:#b8c7db;color:#eef2f7;}"));
 }

@@ -55,6 +55,7 @@ public:
 private slots:
     void updateConnectionStatus(bool connected);
     void triggerUpdateCheck();
+    void updateUpdateButtonState(bool available, const QString &version);
 
 private:
     enum PageIndex {
@@ -70,6 +71,7 @@ private:
     void setupChildPages();
     void switchToPage(int pageIndex);
     void applyShellStyle();
+    void refreshUpdateButtonAppearance(bool available, const QString &version = QString());
 
     Ui::MainWindow *ui;
     QListWidget *m_navList;

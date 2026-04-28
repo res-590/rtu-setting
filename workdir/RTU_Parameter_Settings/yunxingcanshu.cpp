@@ -13,10 +13,29 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTableWidget>
+#include <QTimer>
 #include <QVBoxLayout>
 
 namespace {
 constexpr int kUpgradePacketLen = 980;
+
+constexpr uint8_t kControlSyn = 0x16;
+
+uint16_t nextUpgradeSerial()
+{
+    static uint16_t serial = 1;
+    const uint16_t current = serial;
+    ++serial;
+    if (serial == 0) {
+        serial = 1;
+    }
+    return current;
+}
+
+uint8_t makePackedByte(uint8_t high, uint8_t low)
+{
+    return static_cast<uint8_t>((low & 0x0f) | ((high & 0x0f) << 4));
+}
 
 QString operationTitle(int id)
 {
@@ -71,14 +90,14 @@ QLabel *createResultLabel(const QString &text = QStringLiteral("--"))
 {
     QLabel *label = new QLabel(text);
     label->setWordWrap(true);
-    label->setMargin(10);
-    label->setMinimumHeight(44);
+    label->setMargin(4);
+    label->setMinimumHeight(36);
     label->setStyleSheet(QStringLiteral(
         "background:#e9edf2;"
         "border:1px solid #dde4ec;"
         "border-radius:6px;"
         "color:#475467;"
-        "padding:4px 6px;"));
+        "padding:2px 4px;"));
     return label;
 }
 
@@ -86,8 +105,8 @@ QWidget *wrapControlWithResult(QWidget *controls, QLabel *resultLabel)
 {
     QWidget *container = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout(container);
-    layout->setContentsMargins(0, 8, 0, 8);
-    layout->setSpacing(14);
+    layout->setContentsMargins(8, 6, 0, 6);
+    layout->setSpacing(6);
     layout->addWidget(controls);
     layout->addWidget(resultLabel);
     return container;
@@ -127,6 +146,13 @@ yunxingcanshu::yunxingcanshu(QWidget *parent)
     ui->labelListCountValue->hide();
     setWindowTitle(QStringLiteral("测站操作"));
 
+    for (QComboBox *combo : findChildren<QComboBox *>()) {
+        combo->setMinimumHeight(30);
+    }
+    for (QLineEdit *edit : findChildren<QLineEdit *>()) {
+        edit->setMinimumHeight(30);
+    }
+
     setupOperationTable();
 }
 
@@ -156,7 +182,7 @@ void yunxingcanshu::setupOperationTable()
     ui->tableWidget->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
     ui->tableWidget->setShowGrid(false);
     ui->tableWidget->setAlternatingRowColors(false);
-    ui->tableWidget->verticalHeader()->setDefaultSectionSize(88);
+    ui->tableWidget->verticalHeader()->setDefaultSectionSize(64);
 
     const QList<OperationId> operations = {
         QueryTimeOperation,
@@ -177,11 +203,15 @@ void yunxingcanshu::setupOperationTable()
         const OperationId id = operations.at(row);
         ui->tableWidget->setCellWidget(row, 0, createOperationButton(id));
         ui->tableWidget->setCellWidget(row, 1, createResultWidget(id));
-        ui->tableWidget->setRowHeight(row, id == UpgradeOperation ? 118 : 92);
+        const bool expandedRow =
+            id == InputPortConfigOperation ||
+            id == OutPortControlOperation ||
+            id == UpgradeOperation;
+        ui->tableWidget->setRowHeight(row, expandedRow ? 92 : 64);
     }
 }
 
-QPushButton *yunxingcanshu::createOperationButton(OperationId id)
+QWidget *yunxingcanshu::createOperationButton(OperationId id)
 {
     QPushButton *button = new QPushButton;
     switch (id) {
@@ -199,10 +229,18 @@ QPushButton *yunxingcanshu::createOperationButton(OperationId id)
     case UpgradeOperation: button->setText(QStringLiteral("远程升级")); break;
     default: button->setText(operationTitle(id)); break;
     }
-    button->setMinimumWidth(236);
-    button->setMinimumHeight(48);
+    button->setMinimumWidth(176);
+    const bool expandedButton =
+        id == InputPortConfigOperation ||
+        id == OutPortControlOperation ||
+        id == UpgradeOperation;
+    if (expandedButton) {
+        button->setFixedHeight(84);
+    } else {
+        button->setFixedHeight(40);
+    }
     button->setStyleSheet(QStringLiteral(
-        "QPushButton{background:#2f78e8;color:#ffffff;border:none;border-radius:8px;padding:10px 18px;font-weight:600;font-size:14px;}"
+        "QPushButton{background:#2f78e8;color:#ffffff;border:none;border-radius:8px;padding:7px 12px;font-weight:600;font-size:14px;}"
         "QPushButton:hover{background:#2468cc;}"
         "QPushButton:pressed{background:#1d57aa;}"));
 
@@ -211,7 +249,12 @@ QPushButton *yunxingcanshu::createOperationButton(OperationId id)
     });
 
     m_rows[id].actionButton = button;
-    return button;
+    QWidget *container = new QWidget;
+    QVBoxLayout *layout = new QVBoxLayout(container);
+    layout->setContentsMargins(0, 6, 8, 6);
+    layout->setSpacing(0);
+    layout->addWidget(button);
+    return container;
 }
 
 QWidget *yunxingcanshu::createResultWidget(OperationId id)
@@ -232,7 +275,7 @@ QWidget *yunxingcanshu::createPlainResultWidget(OperationId id)
 {
     QWidget *container = new QWidget;
     QHBoxLayout *layout = new QHBoxLayout(container);
-    layout->setContentsMargins(0, 8, 0, 8);
+    layout->setContentsMargins(8, 6, 0, 6);
     layout->setSpacing(0);
 
     QLabel *resultLabel = createResultLabel();
@@ -246,17 +289,17 @@ QWidget *yunxingcanshu::createInputPortConfigWidget(OperationId id)
     QWidget *controls = new QWidget;
     QHBoxLayout *layout = new QHBoxLayout(controls);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(14);
+    layout->setSpacing(10);
 
     QComboBox *portCombo = new QComboBox;
     portCombo->addItems({QStringLiteral("S1"), QStringLiteral("S2")});
-    portCombo->setMinimumWidth(112);
-    portCombo->setMinimumHeight(38);
+    portCombo->setMinimumWidth(96);
+    portCombo->setMinimumHeight(30);
 
     QComboBox *modeCombo = new QComboBox;
     modeCombo->addItems({QStringLiteral("雨量采集"), QStringLiteral("门磁状态")});
-    modeCombo->setMinimumWidth(220);
-    modeCombo->setMinimumHeight(38);
+    modeCombo->setMinimumWidth(180);
+    modeCombo->setMinimumHeight(30);
 
     layout->addWidget(portCombo);
     layout->addWidget(modeCombo);
@@ -278,13 +321,13 @@ QWidget *yunxingcanshu::createOutPortControlWidget(OperationId id)
 
     QComboBox *portCombo = new QComboBox;
     portCombo->addItems({QStringLiteral("SO1"), QStringLiteral("SO2")});
-    portCombo->setMinimumWidth(112);
-    portCombo->setMinimumHeight(38);
+    portCombo->setMinimumWidth(96);
+    portCombo->setMinimumHeight(30);
 
     QComboBox *modeCombo = new QComboBox;
     modeCombo->addItems({QStringLiteral("相机补光灯控制"), QStringLiteral("现场声光报警")});
-    modeCombo->setMinimumWidth(220);
-    modeCombo->setMinimumHeight(38);
+    modeCombo->setMinimumWidth(180);
+    modeCombo->setMinimumHeight(30);
 
     layout->addWidget(portCombo);
     layout->addWidget(modeCombo);
@@ -307,18 +350,27 @@ QWidget *yunxingcanshu::createUpgradeWidget(OperationId id)
     QLineEdit *fileEdit = new QLineEdit;
     fileEdit->setReadOnly(true);
     fileEdit->setPlaceholderText(QStringLiteral("请选择升级文件"));
-    fileEdit->setMinimumWidth(320);
-    fileEdit->setMinimumHeight(40);
+    fileEdit->setMinimumWidth(260);
+    fileEdit->setMinimumHeight(32);
 
     QPushButton *browseButton = new QPushButton(QStringLiteral("选择文件"));
     connect(browseButton, &QPushButton::clicked, this, &yunxingcanshu::chooseUpgradeFile);
 
+    QPushButton *cancelButton = new QPushButton(QStringLiteral("取消升级"));
+    cancelButton->setStyleSheet(QStringLiteral(
+        "QPushButton{background:#fef3f2;color:#b42318;border:1px solid #fecdca;border-radius:8px;padding:6px 12px;font-weight:600;}"
+        "QPushButton:hover{background:#fee4e2;}"
+        "QPushButton:pressed{background:#fecdca;}"));
+    connect(cancelButton, &QPushButton::clicked, this, &yunxingcanshu::cancelUpgradeTransfer);
+
     layout->addWidget(fileEdit, 1);
     layout->addWidget(browseButton);
+    layout->addWidget(cancelButton);
 
     QLabel *resultLabel = createResultLabel();
     m_rows[id].lineEdit = fileEdit;
     m_rows[id].auxButton = browseButton;
+    m_rows[id].cancelButton = cancelButton;
     m_rows[id].resultLabel = resultLabel;
     return wrapControlWithResult(controls, resultLabel);
 }
@@ -405,6 +457,78 @@ void yunxingcanshu::sendFrame(uint8_t afn, const QByteArray &payload, int8_t sFl
     m_RTU_ParameterSetting->m_Device_connection->sendmessage();
 }
 
+bool yunxingcanshu::encodeUpgradeFrame(uint8_t *frame,
+                                       uint32_t &length,
+                                       int packetIndex,
+                                       const QByteArray &packetData)
+{
+    if (frame == nullptr ||
+        packetIndex <= 0 ||
+        m_upgradeTotalPackets <= 0 ||
+        packetIndex > m_upgradeTotalPackets ||
+        packetData.isEmpty()) {
+        return false;
+    }
+
+    const uint16_t totalPackets = static_cast<uint16_t>(m_upgradeTotalPackets);
+    const uint16_t packetPos = static_cast<uint16_t>(packetIndex);
+    const bool hasFrameInfo =
+        m_RTU_ParameterSetting->FrameBaseInfo.centeraddr != 0 ||
+        m_RTU_ParameterSetting->FrameBaseInfo.cmcpassword != 0 ||
+        m_RTU_ParameterSetting->FrameBaseInfo.testaddr[0] != 0 ||
+        m_RTU_ParameterSetting->FrameBaseInfo.testaddr[1] != 0 ||
+        m_RTU_ParameterSetting->FrameBaseInfo.testaddr[2] != 0 ||
+        m_RTU_ParameterSetting->FrameBaseInfo.testaddr[3] != 0 ||
+        m_RTU_ParameterSetting->FrameBaseInfo.testaddr[4] != 0;
+    const uint8_t defaultTaddr[5] = {0x00, 0x07, 0x56, 0x46, 0x30};
+
+    uint32_t pos = 0;
+    frame[pos++] = 0x7E;
+    frame[pos++] = 0x7E;
+    memcpy(frame + pos,
+           hasFrameInfo ? m_RTU_ParameterSetting->FrameBaseInfo.testaddr : defaultTaddr,
+           5);
+    pos += 5;
+    frame[pos++] = hasFrameInfo ? m_RTU_ParameterSetting->FrameBaseInfo.centeraddr : 0x10;
+
+    const uint16_t pwd = hasFrameInfo ? m_RTU_ParameterSetting->FrameBaseInfo.cmcpassword : 0x0101;
+    frame[pos++] = static_cast<uint8_t>((pwd >> 8) & 0xff);
+    frame[pos++] = static_cast<uint8_t>(pwd & 0xff);
+
+    frame[pos++] = AFN_UPGRADERTU;
+    const uint16_t payloadLen = static_cast<uint16_t>(8 + 3 + packetData.size());
+    frame[pos++] = static_cast<uint8_t>(0x80 | (static_cast<uint8_t>((payloadLen >> 8) & 0x0f)));
+    frame[pos++] = static_cast<uint8_t>(payloadLen & 0xff);
+    frame[pos++] = kControlSyn;
+    frame[pos++] = makePackedByte(static_cast<uint8_t>((totalPackets >> 8) & 0x0f),
+                                  static_cast<uint8_t>((totalPackets >> 4) & 0x0f));
+    frame[pos++] = makePackedByte(static_cast<uint8_t>(totalPackets & 0x0f),
+                                  static_cast<uint8_t>((packetPos >> 8) & 0x0f));
+    frame[pos++] = makePackedByte(static_cast<uint8_t>((packetPos >> 4) & 0x0f),
+                                  static_cast<uint8_t>(packetPos & 0x0f));
+    frame[pos++] = static_cast<uint8_t>((m_upgradeSerial >> 8) & 0xff);
+    frame[pos++] = static_cast<uint8_t>(m_upgradeSerial & 0xff);
+
+    time_t t = time(nullptr);
+    struct tm *info = localtime(&t);
+    frame[pos++] = Hex2BCD((info->tm_year + 1900) % 100);
+    frame[pos++] = Hex2BCD(info->tm_mon + 1);
+    frame[pos++] = Hex2BCD(info->tm_mday);
+    frame[pos++] = Hex2BCD(info->tm_hour);
+    frame[pos++] = Hex2BCD(info->tm_min);
+    frame[pos++] = Hex2BCD(info->tm_sec);
+
+    memcpy(frame + pos, packetData.constData(), packetData.size());
+    pos += static_cast<uint32_t>(packetData.size());
+    frame[pos++] = ENQ;
+
+    const uint16_t crcValue = cal_crc16(frame, pos);
+    frame[pos++] = static_cast<uint8_t>((crcValue >> 8) & 0xff);
+    frame[pos++] = static_cast<uint8_t>(crcValue & 0xff);
+    length = pos;
+    return true;
+}
+
 void yunxingcanshu::sendUpgradePacket(int packetIndex)
 {
     if (m_RTU_ParameterSetting == nullptr ||
@@ -422,75 +546,19 @@ void yunxingcanshu::sendUpgradePacket(int packetIndex)
         return;
     }
 
-    const uint16_t totalPackets = static_cast<uint16_t>(m_upgradeTotalPackets);
-    const uint16_t packetPos = static_cast<uint16_t>(packetIndex);
-
-    const auto lowNibble = [](uint8_t value) -> uint8_t {
-        return value & 0x0f;
-    };
-    const auto highNibble = [](uint8_t value) -> uint8_t {
-        return (value >> 4) & 0x0f;
-    };
-
-    const bool hasFrameInfo =
-        m_RTU_ParameterSetting->FrameBaseInfo.centeraddr != 0 ||
-        m_RTU_ParameterSetting->FrameBaseInfo.cmcpassword != 0 ||
-        m_RTU_ParameterSetting->FrameBaseInfo.testaddr[0] != 0 ||
-        m_RTU_ParameterSetting->FrameBaseInfo.testaddr[1] != 0 ||
-        m_RTU_ParameterSetting->FrameBaseInfo.testaddr[2] != 0 ||
-        m_RTU_ParameterSetting->FrameBaseInfo.testaddr[3] != 0 ||
-        m_RTU_ParameterSetting->FrameBaseInfo.testaddr[4] != 0;
-    const uint8_t defaultTaddr[5] = {0x00, 0x07, 0x56, 0x46, 0x30};
-
-    uint32_t pos = 0;
     m_RTU_ParameterSetting->sendmessager_lock.lock();
     memset(m_RTU_ParameterSetting->m_sendmessage.messageByte, 0, sizeof(m_RTU_ParameterSetting->m_sendmessage.messageByte));
-    uint8_t *frame = m_RTU_ParameterSetting->m_sendmessage.messageByte;
-    frame[pos++] = 0x7E;
-    frame[pos++] = 0x7E;
-    memcpy(frame + pos,
-           hasFrameInfo ? m_RTU_ParameterSetting->FrameBaseInfo.testaddr : defaultTaddr,
-           5);
-    pos += 5;
-    frame[pos++] = hasFrameInfo ? m_RTU_ParameterSetting->FrameBaseInfo.centeraddr : 0x10;
-
-    uint16_t pwd = hasFrameInfo ? m_RTU_ParameterSetting->FrameBaseInfo.cmcpassword : 0x0100;
-    SwapDateByte(reinterpret_cast<uint8_t *>(&pwd), sizeof(pwd));
-    frame[pos++] = static_cast<uint8_t>((pwd >> 8) & 0xff);
-    frame[pos++] = static_cast<uint8_t>(pwd & 0xff);
-
-    frame[pos++] = AFN_UPGRADERTU;
-    uint16_t plen = static_cast<uint16_t>(packetData.size() + 11) | 0x8000;
-    frame[pos++] = static_cast<uint8_t>((plen >> 8) & 0xff);
-    frame[pos++] = static_cast<uint8_t>(plen & 0xff);
-    frame[pos++] = 0x16;
-    frame[pos++] = static_cast<uint8_t>((lowNibble(static_cast<uint8_t>(totalPackets >> 8)) << 4) |
-                                        highNibble(static_cast<uint8_t>(totalPackets & 0xff)));
-    frame[pos++] = static_cast<uint8_t>((lowNibble(static_cast<uint8_t>(totalPackets & 0xff)) << 4) |
-                                        lowNibble(static_cast<uint8_t>(packetPos >> 8)));
-    frame[pos++] = static_cast<uint8_t>((highNibble(static_cast<uint8_t>(packetPos & 0xff)) << 4) |
-                                        lowNibble(static_cast<uint8_t>(packetPos & 0xff)));
-    frame[pos++] = 0x00;
-    frame[pos++] = 0x00;
-
-    time_t t = time(nullptr);
-    struct tm *info = localtime(&t);
-    frame[pos++] = Hex2BCD((info->tm_year + 1900) % 100);
-    frame[pos++] = Hex2BCD(info->tm_mon + 1);
-    frame[pos++] = Hex2BCD(info->tm_mday);
-    frame[pos++] = Hex2BCD(info->tm_hour);
-    frame[pos++] = Hex2BCD(info->tm_min);
-    frame[pos++] = Hex2BCD(info->tm_sec);
-
-    memcpy(m_RTU_ParameterSetting->m_sendmessage.messageByte + pos, packetData.constData(), packetData.size());
-    pos += static_cast<uint32_t>(packetData.size());
-    m_RTU_ParameterSetting->m_sendmessage.messageByte[pos] = ENQ;
-    pos++;
-    const uint16_t crcValue = cal_crc16(m_RTU_ParameterSetting->m_sendmessage.messageByte, pos);
-    m_RTU_ParameterSetting->m_sendmessage.messageByte[pos + 1] = (crcValue & 0xff);
-    m_RTU_ParameterSetting->m_sendmessage.messageByte[pos] = ((crcValue >> 8) & 0xff);
-    pos += 2;
-    m_RTU_ParameterSetting->sMessageLen = pos;
+    uint32_t frameLength = 0;
+    if (!encodeUpgradeFrame(m_RTU_ParameterSetting->m_sendmessage.messageByte,
+                            frameLength,
+                            packetIndex,
+                            packetData)) {
+        m_RTU_ParameterSetting->sendmessager_lock.unlock();
+        setResult(UpgradeOperation, QStringLiteral("Upgrade frame encode failed"));
+        resetUpgradeState();
+        return;
+    }
+    m_RTU_ParameterSetting->sMessageLen = frameLength;
     m_RTU_ParameterSetting->sendmessager_lock.unlock();
 
     m_upgradeCurrentPacket = packetIndex;
@@ -520,16 +588,34 @@ void yunxingcanshu::beginUpgradeTransfer()
 
     m_upgradeTotalPackets = (m_upgradeFileData.size() + kUpgradePacketLen - 1) / kUpgradePacketLen;
     m_upgradeCurrentPacket = 0;
+    m_upgradeSerial = nextUpgradeSerial();
+    m_upgradeCancelled = false;
     m_upgradeInProgress = true;
     sendUpgradePacket(1);
 }
 
-void yunxingcanshu::resetUpgradeState()
+void yunxingcanshu::cancelUpgradeTransfer()
+{
+    if (!m_upgradeInProgress) {
+        setResult(UpgradeOperation, QStringLiteral("当前没有正在进行的远程升级"));
+        return;
+    }
+
+    m_upgradeCancelled = true;
+    resetUpgradeState(false);
+    setResult(UpgradeOperation, QStringLiteral("远程升级已取消，不再继续发送后续分包"));
+}
+
+void yunxingcanshu::resetUpgradeState(bool clearCancelled)
 {
     m_upgradeFileData.clear();
     m_upgradeTotalPackets = 0;
     m_upgradeCurrentPacket = 0;
+    m_upgradeSerial = 0;
     m_upgradeInProgress = false;
+    if (clearCancelled) {
+        m_upgradeCancelled = false;
+    }
 }
 
 void yunxingcanshu::triggerOperation(OperationId id)
@@ -552,10 +638,10 @@ void yunxingcanshu::triggerOperation(OperationId id)
         sendFrame(AFN_QUERYSTATUS);
         break;
     case InputPortConfigOperation:
-        setResult(id, QStringLiteral("母版程序未提供独立输入端口配置指令，当前保留界面配置项。"));
+        setResult(id, QStringLiteral("--"));
         break;
     case InputPortQueryOperation:
-        setResult(id, QStringLiteral("母版程序未提供独立输入端口查询指令，建议先执行“查询测站工况”。"));
+        setResult(id, QStringLiteral("--"));
         break;
     case OutPortControlOperation: {
         const int portId = m_rows[id].comboA ? (m_rows[id].comboA->currentIndex() + 1) : 1;
@@ -724,29 +810,89 @@ void yunxingcanshu::handleOutPortQueryResponse()
 
 void yunxingcanshu::handleUpgradeResponse()
 {
+    const uint8_t afn = m_RTU_ParameterSetting->m_recivemessage.message.AFN;
+    const QByteArray payload = currentPayload();
+
     if (!m_upgradeInProgress || m_upgradeTotalPackets <= 0) {
-        setResult(UpgradeOperation, QStringLiteral("收到升级应答"));
+        if (m_upgradeCancelled) {
+            return;
+        }
+        setResult(UpgradeOperation, QStringLiteral("Upgrade ACK received"));
         return;
     }
 
-    const int acknowledgedPacket = m_upgradeCurrentPacket;
-    const int progress = acknowledgedPacket * 100 / m_upgradeTotalPackets;
-    if (acknowledgedPacket >= m_upgradeTotalPackets) {
-        setResult(UpgradeOperation, QStringLiteral("升级完成 100%% (%1/%2)")
-                                      .arg(m_upgradeTotalPackets)
-                                      .arg(m_upgradeTotalPackets));
+    int packetTotal = 0;
+    int packetPos = 0;
+
+    if (afn == AFN_UPGRADERTU) {
+        const uint8_t *frame = m_RTU_ParameterSetting->m_recivemessage.messageByte;
+        const uint8_t packetCtl1 = frame[14];
+        const uint8_t packetCtl2 = frame[15];
+        const uint8_t packetCtl3 = frame[16];
+
+        packetTotal =
+            static_cast<int>(((packetCtl1 >> 4) & 0x0f) << 8) |
+            static_cast<int>((packetCtl1 & 0x0f) << 4) |
+            static_cast<int>((packetCtl2 >> 4) & 0x0f);
+        packetPos =
+            static_cast<int>(packetCtl3) |
+            static_cast<int>((packetCtl2 & 0x0f) << 8);
+    } else if (afn == 0x00 &&
+               !payload.isEmpty() &&
+               static_cast<uint8_t>(payload.at(0)) == AFN_UPGRADERTU) {
+        if (payload.size() >= 2) {
+            const uint8_t status = static_cast<uint8_t>(payload.at(1));
+            if (status == 0x15) {
+                setResult(UpgradeOperation,
+                          QStringLiteral("Upgrade NAK: %1")
+                              .arg(QString::fromLatin1(payload.toHex(' ').toUpper())));
+                m_upgradeCancelled = false;
+                resetUpgradeState();
+                return;
+            }
+            if (status != 0x06) {
+                setResult(UpgradeOperation,
+                          QStringLiteral("Upgrade resp: %1")
+                              .arg(QString::fromLatin1(payload.toHex(' ').toUpper())));
+                m_upgradeCancelled = false;
+                resetUpgradeState();
+                return;
+            }
+        }
+        packetTotal = m_upgradeTotalPackets;
+        packetPos = m_upgradeCurrentPacket;
+    }
+
+    const int effectiveTotal = packetTotal > 0 ? packetTotal : m_upgradeTotalPackets;
+    const int effectivePos = packetPos > 0 ? packetPos : m_upgradeCurrentPacket;
+    const bool reachLastPacketByReport = packetTotal > 0 && packetPos >= packetTotal;
+    const bool reachLastPacketByLocalState =
+        effectiveTotal > 0 &&
+        m_upgradeCurrentPacket >= effectiveTotal &&
+        (packetPos + 1 >= effectiveTotal || packetPos >= m_upgradeCurrentPacket);
+
+    if (reachLastPacketByReport || reachLastPacketByLocalState) {
+        setResult(UpgradeOperation, QStringLiteral("Upgrade complete 100%% (%1/%2)")
+                                      .arg(effectiveTotal)
+                                      .arg(effectiveTotal));
+        m_upgradeCancelled = false;
         resetUpgradeState();
         return;
     }
 
-    setResult(UpgradeOperation, QStringLiteral("升级进度 %1%%，已确认 %2/%3")
+    int progress = static_cast<int>((static_cast<float>(effectivePos) /
+                                     static_cast<float>(effectiveTotal > 0 ? effectiveTotal : 1)) * 100.0f);
+    if (progress >= 100) {
+        progress = 99;
+    }
+
+    setResult(UpgradeOperation, QStringLiteral("Upgrade progress %1%%, ack %2/%3")
                                   .arg(progress)
-                                  .arg(acknowledgedPacket)
-                                  .arg(m_upgradeTotalPackets));
-    const int nextPacket = acknowledgedPacket + 1;
+                                  .arg(effectivePos)
+                                  .arg(effectiveTotal));
+    const int nextPacket = qMax(m_upgradeCurrentPacket, effectivePos) + 1;
     sendUpgradePacket(nextPacket);
 }
-
 void yunxingcanshu::on_set_Button_clicked()
 {
     triggerOperation(QueryStatusOperation);

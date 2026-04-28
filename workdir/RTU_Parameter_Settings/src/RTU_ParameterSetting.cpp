@@ -22,7 +22,7 @@ RTU_ParameterSetting::RTU_ParameterSetting()
     FrameBaseInfo.testaddr[2] = 0x56;
     FrameBaseInfo.testaddr[3] = 0x46;
     FrameBaseInfo.testaddr[4] = 0x30;
-    FrameBaseInfo.cmcpassword = 0x0100;
+    FrameBaseInfo.cmcpassword = 0x0101;
     displayInfo = FrameBaseInfo;
     memset(m_sendmessage.messageByte,0,sizeof (m_sendmessage));
     memset(m_recivemessage.messageByte,0,sizeof (m_recivemessage));
@@ -105,7 +105,7 @@ void Message_MainbadyEncode(RTU_Message_s *dateinfo,uint8_t AFN,int8_t sFlag,int
     memcpy(dateinfo->message.Taddr,
            hasFrameInfo ? m_RTU_ParameterSetting->FrameBaseInfo.testaddr : defaultTaddr,
            5);
-    dateinfo->message.Pwd = hasFrameInfo ? m_RTU_ParameterSetting->FrameBaseInfo.cmcpassword : 0x0100;
+    dateinfo->message.Pwd = hasFrameInfo ? m_RTU_ParameterSetting->FrameBaseInfo.cmcpassword : 0x0101;
     SwapDateByte((uint8_t*) &(dateinfo->message.Pwd),sizeof(dateinfo->message.Pwd));
     dateinfo->message.AFN = AFN;
     dateinfo->message.SFlag = sFlag;

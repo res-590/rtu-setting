@@ -4,8 +4,10 @@
 #include "RTU_ParameterSetting.h"
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDebug>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
@@ -19,7 +21,7 @@ namespace {
 QString primaryButtonStyle()
 {
     return QStringLiteral(
-        "QPushButton{background:#2f78e8;color:#ffffff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;min-height:38px;}"
+        "QPushButton{background:#2f78e8;color:#ffffff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;min-height:32px;}"
         "QPushButton:hover{background:#2468cc;}"
         "QPushButton:pressed{background:#1d57aa;}");
 }
@@ -27,7 +29,7 @@ QString primaryButtonStyle()
 QString secondaryButtonStyle()
 {
     return QStringLiteral(
-        "QPushButton{background:#ffffff;color:#2f78e8;border:1px solid #bfd4f6;border-radius:6px;padding:8px 18px;font-weight:600;min-height:38px;}"
+        "QPushButton{background:#ffffff;color:#2f78e8;border:1px solid #bfd4f6;border-radius:6px;padding:6px 14px;font-weight:600;min-height:32px;}"
         "QPushButton:hover{background:#edf4ff;}"
         "QPushButton:pressed{background:#dbeafe;}");
 }
@@ -128,7 +130,7 @@ BasicPage::BasicPage(QWidget *parent)
     setLabelText("pageTitle", QStringLiteral("基础参数配置"));
     setLabelText("pageSubtitle", QStringLiteral("配置测站基础信息、工作模式和运行参数，并设置整点报送时段。"));
     setLabelText("labelDeviceId", QStringLiteral("设备编号："));
-    setLabelText("labelModifyId", QStringLiteral("修改编号："));
+    setLabelText("labelModifyId", QStringLiteral("中心站地址："));
     setLabelText("labelWorkMode", QStringLiteral("工作方式："));
     setLabelText("labelPassword", QStringLiteral("通信密码："));
     setLabelText("labelReportInterval", QStringLiteral("加报间隔(分钟)："));
@@ -163,6 +165,19 @@ BasicPage::BasicPage(QWidget *parent)
         QStringLiteral("兼容模式"),
         QStringLiteral("调试模式")
     });
+
+    for (QLineEdit *edit : findChildren<QLineEdit *>()) {
+        edit->setMinimumHeight(28);
+    }
+    for (QComboBox *combo : findChildren<QComboBox *>()) {
+        combo->setMinimumHeight(28);
+    }
+    for (QPushButton *button : findChildren<QPushButton *>()) {
+        button->setMinimumHeight(32);
+    }
+    for (QCheckBox *checkBox : hourCheckBoxes()) {
+        checkBox->setStyleSheet(QStringLiteral("spacing:4px;padding:1px 2px;"));
+    }
 
     clearFormValues();
 }
@@ -209,11 +224,22 @@ void BasicPage::setHourSelection(int step, int startHour)
         return;
     }
 
-    for (int hour = startHour; hour < 24; hour += step) {
+    for (int offset = 0; offset < 24; offset += step) {
+        const int hour = (startHour + offset) % 24;
         if (QCheckBox *checkBox = findChild<QCheckBox *>(QStringLiteral("time_%1").arg(hour))) {
             checkBox->setChecked(true);
         }
     }
+}
+
+int BasicPage::selectedDayStartHour() const
+{
+    bool ok = false;
+    const int value = ui->dayStartEdit->text().trimmed().toInt(&ok);
+    if (ok && value >= 0 && value <= 23) {
+        return value;
+    }
+    return 8;
 }
 
 void BasicPage::on_huifu_Button_clicked()
@@ -313,7 +339,7 @@ void BasicPage::on_set_Button_clicked()
         return;
     }
     if (!QRegularExpression(QStringLiteral("^[0-9]{2}$")).match(modifyIdText).hasMatch()) {
-        QMessageBox::warning(this, QStringLiteral("提示"), QStringLiteral("修改编号必须是2位数字，例如 10"));
+        QMessageBox::warning(this, QStringLiteral("提示"), QStringLiteral("中心站地址必须是2位数字，例如 10"));
         return;
     }
     if (!QRegularExpression(QStringLiteral("^[0-9A-F]{4}$")).match(passwordText).hasMatch()) {
@@ -343,12 +369,12 @@ void BasicPage::on_set_Button_clicked()
     bool ok = false;
     const int centerHigh = QString(modifyIdText.at(0)).toInt(&ok);
     if (!ok) {
-        QMessageBox::warning(this, QStringLiteral("提示"), QStringLiteral("修改编号格式无效"));
+        QMessageBox::warning(this, QStringLiteral("提示"), QStringLiteral("中心站地址格式无效"));
         return;
     }
     const int centerLow = QString(modifyIdText.at(1)).toInt(&ok);
     if (!ok) {
-        QMessageBox::warning(this, QStringLiteral("提示"), QStringLiteral("修改编号格式无效"));
+        QMessageBox::warning(this, QStringLiteral("提示"), QStringLiteral("中心站地址格式无效"));
         return;
     }
     const uint8_t centerAddr = static_cast<uint8_t>((centerHigh << 4) | centerLow);
@@ -420,7 +446,7 @@ void BasicPage::on_set_Button_clicked()
     qDebug().noquote()
         << "base params pending set:"
         << "deviceId=" << deviceIdText
-        << "modifyId=" << modifyIdText
+        << "centerAddr=" << modifyIdText
         << "workMode=" << ui->workModeCombo->currentText()
         << "password=" << passwordText
         << "reportInterval=" << ui->reportIntervalEdit->text()
@@ -457,12 +483,12 @@ void BasicPage::on_clearAllHoursButton_clicked()
 
 void BasicPage::on_every2HoursButton_clicked()
 {
-    setHourSelection(2, 0);
+    setHourSelection(2, selectedDayStartHour());
 }
 
 void BasicPage::on_every3HoursButton_clicked()
 {
-    setHourSelection(3, 0);
+    setHourSelection(3, 8);
 }
 
 void BasicPage::handle_baseConfigParam()
