@@ -26,19 +26,23 @@ function Resolve-MakeTool {
     }
 
     try {
-        $qtBins = & $QMakeExe -query QT_HOST_BINS
+        $qtBins = (& $QMakeExe -query QT_HOST_BINS).Trim()
         if ($LASTEXITCODE -eq 0 -and $qtBins) {
-            $qtRoot = Split-Path -Parent $qtBins
-            $possible = Get-ChildItem -Path $qtRoot -Filter "mingw32-make.exe" -Recurse -ErrorAction SilentlyContinue |
-                Select-Object -First 1
-            if ($possible) {
-                return $possible.FullName
+            $qtRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $qtBins))
+            $toolsDir = Join-Path $qtRoot "Tools"
+            if (Test-Path $toolsDir) {
+                $possible = Get-ChildItem -Path $toolsDir -Filter "mingw32-make.exe" -Recurse -ErrorAction SilentlyContinue |
+                    Sort-Object FullName -Descending |
+                    Select-Object -First 1
+                if ($possible) {
+                    return $possible.FullName
+                }
             }
         }
     } catch {
     }
 
-    throw "未找到 make 工具，请通过 -MakeTool 显式指定。"
+    throw "make tool not found; use -MakeTool to specify it explicitly."
 }
 
 function Ensure-Dir {
@@ -76,13 +80,29 @@ Ensure-Dir $configDir
 
 if (-not $SkipBuild) {
     $resolvedMake = Resolve-MakeTool -QMakeExe $QMakePath -Preferred $MakeTool
+    $makeDir = Split-Path -Parent $resolvedMake
+    $env:PATH = "$makeDir;$env:PATH"
 
     & $QMakePath $mainPro "CONFIG+=release"
+    if ($LASTEXITCODE -ne 0) {
+        throw "qmake failed for main project."
+    }
     & $resolvedMake
+    if ($LASTEXITCODE -ne 0) {
+        throw "make failed for main project."
+    }
 
     Push-Location (Join-Path $ProjectRoot "updater")
     & $QMakePath $updaterPro "CONFIG+=release"
+    if ($LASTEXITCODE -ne 0) {
+        Pop-Location
+        throw "qmake failed for updater project."
+    }
     & $resolvedMake
+    if ($LASTEXITCODE -ne 0) {
+        Pop-Location
+        throw "make failed for updater project."
+    }
     Pop-Location
 }
 
@@ -90,11 +110,11 @@ $mainExe = Join-Path $releaseDir "RTU_Parameter_Config_Tool.exe"
 $updaterExe = Join-Path $updaterBuildDir "updater.exe"
 
 if (-not (Test-Path $mainExe)) {
-    throw "未找到主程序：$mainExe"
+    throw "main executable not found: $mainExe"
 }
 
 if (-not (Test-Path $updaterExe)) {
-    throw "未找到升级器：$updaterExe"
+    throw "updater executable not found: $updaterExe"
 }
 
 if (Test-Path $publishDir) {
@@ -129,10 +149,11 @@ Set-Content -Path (Join-Path $publishDir "version.txt") -Value $version -Encodin
 $qtHostBins = (& $QMakePath -query QT_HOST_BINS).Trim()
 $windeployqt = Join-Path $qtHostBins "windeployqt.exe"
 if (-not (Test-Path $windeployqt)) {
-    throw "未找到 windeployqt：$windeployqt"
+    throw "windeployqt not found: $windeployqt"
 }
 
 & $windeployqt --release --compiler-runtime --no-translations --dir $publishDir $mainExe
+& $windeployqt --release --compiler-runtime --no-translations --dir $publishDir $updaterExe
 
 $zipPath = Join-Path $publishRootResolved ("RTU_Parameter_Config_Tool-{0}.zip" -f $version)
 if (Test-Path $zipPath) {
@@ -141,5 +162,5 @@ if (Test-Path $zipPath) {
 
 Compress-Archive -Path (Join-Path $publishDir "*") -DestinationPath $zipPath
 
-Write-Host "发布目录已生成：$publishDir"
-Write-Host "发布压缩包已生成：$zipPath"
+Write-Host "Publish dir created: $publishDir"
+Write-Host "Zip created: $zipPath"

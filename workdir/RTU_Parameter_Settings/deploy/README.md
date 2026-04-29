@@ -25,7 +25,7 @@ RTU_Parameter_Config_Tool/
 说明：
 
 - `RTU_Parameter_Config_Tool.exe` 是主程序。
-- `updater.exe` 是独立升级器，主程序在线升级时会复制它到临时目录执行。
+- `updater.exe` 是独立升级器，主程序在线升级时会连同同目录运行库一起复制到临时目录执行。
 - `version.txt` 用于记录当前安装版本。
 - `*.ini` 视为用户配置，升级器默认保留现有同名 `ini`，不会强制覆盖。
 - `config/update_config.ini` 存放在线升级配置。

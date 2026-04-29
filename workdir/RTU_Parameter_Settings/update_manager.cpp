@@ -77,6 +77,36 @@ void prepareNetworkRequest(QNetworkRequest &request, int timeoutMs)
     request.setHeader(QNetworkRequest::UserAgentHeader,
                       QStringLiteral("RTU_Parameter_Config_Tool Updater"));
 }
+
+bool copyFileToDir(const QString &sourceFilePath, const QString &targetDirPath)
+{
+    const QFileInfo sourceInfo(sourceFilePath);
+    if (!sourceInfo.exists() || !sourceInfo.isFile()) {
+        return false;
+    }
+
+    QDir targetDir(targetDirPath);
+    if (!targetDir.exists() && !QDir().mkpath(targetDirPath)) {
+        return false;
+    }
+
+    const QString targetFilePath = targetDir.filePath(sourceInfo.fileName());
+    QFile::remove(targetFilePath);
+    return QFile::copy(sourceFilePath, targetFilePath);
+}
+
+bool copyRootDllDependencies(const QString &sourceDirPath, const QString &targetDirPath)
+{
+    const QDir sourceDir(sourceDirPath);
+    const QFileInfoList dllFiles = sourceDir.entryInfoList(QStringList() << QStringLiteral("*.dll"),
+                                                           QDir::Files);
+    for (const QFileInfo &dllFile : dllFiles) {
+        if (!copyFileToDir(dllFile.absoluteFilePath(), targetDirPath)) {
+            return false;
+        }
+    }
+    return true;
+}
 }
 
 UpdateManager::UpdateManager(QWidget *ownerWidget, QObject *parent)
@@ -458,11 +488,17 @@ bool UpdateManager::launchUpdater(const QString &zipPath, const QString &targetV
 
     const QString tempUpdaterDir = QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
                                        .filePath(APP_PRODUCT_ID_LITERAL + QStringLiteral("/updater"));
+    QDir(tempUpdaterDir).removeRecursively();
     QDir().mkpath(tempUpdaterDir);
     const QString tempUpdaterPath = QDir(tempUpdaterDir).filePath(APP_UPDATER_EXE_LITERAL);
-    QFile::remove(tempUpdaterPath);
-    if (!QFile::copy(sourceUpdater, tempUpdaterPath)) {
+    if (!copyFileToDir(sourceUpdater, tempUpdaterDir)) {
         appendLog(QStringLiteral("[更新] 复制升级器失败：%1").arg(tempUpdaterPath));
+        return false;
+    }
+
+    if (!copyRootDllDependencies(appDir, tempUpdaterDir)) {
+        appendLog(QStringLiteral("[Update] Failed to copy updater runtime files: %1")
+                      .arg(QDir::toNativeSeparators(tempUpdaterDir)));
         return false;
     }
 
