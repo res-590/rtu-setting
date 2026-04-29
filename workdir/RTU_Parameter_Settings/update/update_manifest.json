@@ -1,6 +1,6 @@
 ﻿{
-    "version":  "1.0.4",
-    "url":  "https://github.com/res-590/rtu-setting/releases/download/v1.0.4/RTU_Parameter_Config_Tool-1.0.4.zip",
-    "sha256":  "f57a018d47858215cbe5998d6b69405b1ff2b8dcf77bb18ec1c9d87b919b50ce",
+    "version":  "1.0.5",
+    "url":  "https://github.com/res-590/rtu-setting/releases/download/v1.0.5/RTU_Parameter_Config_Tool-1.0.5.zip",
+    "sha256":  "4465f500230ff13b62b5b4390321757c6147350ef6c8ddb5a07447c41b0aee60",
     "notes":  "1. 修复在线更新下载在 GitHub 跳转场景下容易超时取消的问题\n2. 自动检查更新改为静默执行，启动时不再输出检查日志\n3. 手动检查更新仍保留必要提示和下载日志\n4. 修正基础参数页“中心站地址”文案\n5. 每三小时快捷选择固定按 8 点起算\n6. 日志中的 AFN 0x2F 统一显示为“链路维持报”\n7. 基础参数页控件间距和尺寸更紧凑\n8. 修复远程升级报文构造、密码使用与取消升级流程"
 }
