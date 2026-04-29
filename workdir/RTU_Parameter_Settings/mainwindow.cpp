@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "basicpage.h"
+#include "dataquerypage.h"
 #include "sensor.h"
 #include "portset.h"
 #include "dtuset.h"
@@ -37,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_dtuPage(nullptr)
     , m_portPage(nullptr)
     , m_connectionTool(nullptr)
+    , m_dataQueryPage(nullptr)
     , m_updateManager(nullptr)
 {
     ui->setupUi(this);
@@ -125,8 +127,9 @@ void MainWindow::setupShellUi()
     m_navList->addItem(QStringLiteral("DTU 参数"));
     m_navList->addItem(QStringLiteral("端口参数"));
     m_navList->addItem(QStringLiteral("通信设置"));
-    m_navList->setSpacing(10);
-    m_navList->setGridSize(QSize(168, 60));
+    m_navList->insertItem(m_navList->count() - 1, QString::fromUtf8(u8"\u6570\u636e\u67e5\u8be2"));
+    m_navList->setSpacing(14);
+    m_navList->setGridSize(QSize(188, 60));
     m_navList->setWrapping(false);
     m_navList->setMovement(QListView::Static);
     m_navList->setCurrentRow(0);
@@ -142,6 +145,7 @@ void MainWindow::setupChildPages()
     m_dtuPage = new dtuset(m_pageStack);
     m_portPage = new portset(m_pageStack);
     m_connectionTool = new Device_connection(m_pageStack);
+    m_dataQueryPage = new DataQueryPage(m_pageStack);
 
     m_RTU_ParameterSetting->m_basicPage = m_basicPage;
     m_RTU_ParameterSetting->m_runtimePage = m_runtimePage;
@@ -155,10 +159,13 @@ void MainWindow::setupChildPages()
     m_pageStack->addWidget(m_sensorPage);
     m_pageStack->addWidget(m_dtuPage);
     m_pageStack->addWidget(m_portPage);
+    m_pageStack->addWidget(m_dataQueryPage);
     m_pageStack->addWidget(m_connectionTool);
 
     connect(m_connectionTool, &Device_connection::connectionStatusChanged,
             this, &MainWindow::updateConnectionStatus);
+    connect(m_sensorPage, &sensor::sensorRecordsChanged,
+            m_dataQueryPage, &DataQueryPage::refreshSensorOptions);
 }
 
 void MainWindow::switchToPage(int pageIndex)
@@ -197,6 +204,10 @@ void MainWindow::switchToPage(int pageIndex)
         pageTitle = QStringLiteral("通信设置");
         pageSubtitle = QStringLiteral("完成串口连接、手动发报和运行日志查看，接收日志实时显示在右侧。");
         break;
+    case DataQueryPageIndex:
+        pageTitle = QString::fromUtf8(u8"\u6570\u636e\u67e5\u8be2");
+        pageSubtitle = QString::fromUtf8(u8"\u6309\u5df2\u914d\u7f6e\u7684\u4f20\u611f\u5668\u6267\u884c\u5b9e\u65f6\u6570\u636e\u67e5\u8be2\uff0c\u5e76\u5728\u9875\u9762\u5185\u663e\u793a\u8fd4\u56de\u7ed3\u679c\u3002");
+        break;
     default:
         return;
     }
@@ -217,9 +228,9 @@ void MainWindow::applyShellStyle()
         "QLabel#statusTitleLabel,QLabel#logTitleLabel{font-size:16px;font-weight:700;color:#0f172a;}"
         "QLabel#statusValueLabel{min-width:80px;min-height:34px;}"
         "QLabel#serialValueLabel{font-size:13px;color:#475569;}"
-        "QListWidget#navListWidget{background:transparent;border:none;outline:none;padding:4px;}"
+        "QListWidget#navListWidget{background:transparent;border:none;outline:none;padding:4px 12px;}"
         "QListWidget#navListWidget::item{background:#eef4ff;border:1px solid #d8e7ff;border-radius:8px;"
-        "padding:12px 18px;color:#1e3a5f;min-width:140px;min-height:24px;font-size:14px;font-weight:600;}"
+        "padding:12px 16px;color:#1e3a5f;min-width:136px;min-height:24px;font-size:14px;font-weight:600;}"
         "QListWidget#navListWidget::item:selected{background:#2f78e8;border:1px solid #2f78e8;color:#ffffff;}"
         "QListWidget#navListWidget::item:hover{background:#dbeafe;border:1px solid #9ec5fe;}"
         "QPushButton{background:#2f78e8;color:#ffffff;border:none;border-radius:6px;padding:6px 14px;"

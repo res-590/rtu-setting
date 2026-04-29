@@ -1,6 +1,7 @@
 #include "device_connection.h"
 #include "ui_device_connection.h"
 #include "RTU_ParameterSetting.h"
+#include "dataquerypage.h"
 #include "dtuset.h"
 #include "sensor.h"
 #include "yunxingcanshu.h"
@@ -317,6 +318,13 @@ void Device_connection::dispatchCurrentMessage()
     } else if (afn == AFN_QUERYTIME) {
         if (m_RTU_ParameterSetting->m_runtimePage != nullptr) {
             m_RTU_ParameterSetting->m_runtimePage->handleQueryTimeResponse();
+        }
+    } else if (afn == AFN_QUERYREALDATA || afn == 0x30) {
+        if (m_RTU_ParameterSetting->m_MainWindow != nullptr) {
+            auto *page = m_RTU_ParameterSetting->m_MainWindow->findChild<DataQueryPage *>();
+            if (page != nullptr) {
+                page->handleRealtimeDataResponse(afn);
+            }
         }
     } else if (afn == AFN_ADJUSTTIME) {
         if (m_RTU_ParameterSetting->m_runtimePage != nullptr) {

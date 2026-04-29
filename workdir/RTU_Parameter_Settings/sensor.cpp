@@ -399,6 +399,11 @@ sensor::~sensor()
     delete ui;
 }
 
+QVector<SensorRecord> sensor::sensorRecords() const
+{
+    return m_records;
+}
+
 void sensor::buildListPage()
 {
     m_pageLayout = qobject_cast<QVBoxLayout *>(layout());
@@ -990,6 +995,7 @@ void sensor::showSensorDialog(int editRow)
         }
 
         refreshSensorTable();
+        emit sensorRecordsChanged();
         sendSensorConfigWrite();
         dialog.accept();
     });
@@ -1084,6 +1090,7 @@ void sensor::on_delete_sensor_clicked()
 
     m_records.removeAt(targetRow);
     refreshSensorTable();
+    emit sensorRecordsChanged();
     sendSensorConfigWrite();
 }
 
@@ -1138,4 +1145,5 @@ void sensor::handleSensorInfo()
     m_records = records;
     m_nextSensorIndex = m_records.size() + 1;
     refreshSensorTable();
+    emit sensorRecordsChanged();
 }

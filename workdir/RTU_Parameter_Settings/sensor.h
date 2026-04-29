@@ -61,6 +61,10 @@ public:
     ~sensor();
 
     void handleSensorInfo();
+    QVector<SensorRecord> sensorRecords() const;
+
+signals:
+    void sensorRecordsChanged();
 
 private slots:
     void on_add_sensor_clicked();

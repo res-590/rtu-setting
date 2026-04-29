@@ -15,6 +15,7 @@ class QSplitter;
 class QPlainTextEdit;
 class QStackedWidget;
 class BasicPage;
+class DataQueryPage;
 class yunxingcanshu;
 class sensor;
 class dtuset;
@@ -64,6 +65,7 @@ private:
         SensorPageIndex,
         DtuPageIndex,
         PortPageIndex,
+        DataQueryPageIndex,
         ConnectionPageIndex
     };
 
@@ -88,6 +90,7 @@ private:
     dtuset *m_dtuPage;
     portset *m_portPage;
     Device_connection *m_connectionTool;
+    DataQueryPage *m_dataQueryPage;
     UpdateManager *m_updateManager;
 };
 #endif // MAINWINDOW_H

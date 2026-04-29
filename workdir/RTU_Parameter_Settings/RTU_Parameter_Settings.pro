@@ -3,7 +3,7 @@ QT       += serialport network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++11
+CONFIG += c++17
 
 TARGET = RTU_Parameter_Config_Tool
 RC_ICONS = branding/app_icon.ico
@@ -15,6 +15,7 @@ RC_ICONS = branding/app_icon.ico
 SOURCES += \
     basicpage.cpp \
     bwprotocol.cpp \
+    dataquerypage.cpp \
     device_connection.cpp \
     dtuset.cpp \
     main.cpp \
@@ -30,6 +31,7 @@ HEADERS += \
     app_metadata.h \
     basicpage.h \
     bwprotocol.h \
+    dataquerypage.h \
     device_connection.h \
     dtuset.h \
     mainwindow.h \

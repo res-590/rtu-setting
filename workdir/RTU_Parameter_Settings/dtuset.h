@@ -54,6 +54,7 @@ public:
 
 private slots:
     void on_set_Button_clicked();
+    void on_clear_Button_clicked();
     void on_channel1_currentIndexChanged(int index);
     void on_channel2_currentIndexChanged(int index);
     void on_channel3_currentIndexChanged(int index);
@@ -83,6 +84,7 @@ private slots:
 
 private:
     void syncUiToProtocol();
+    void clearDisplayedParameters();
     RTU_Protocol dtuinfo;
     Ui::dtuset *ui;
 };

@@ -1,6 +1,8 @@
 #include "dtuset.h"
 #include "RTU_ParameterSetting.h"
 #include "ui_dtuset.h"
+#include <QBoxLayout>
+#include <QFrame>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
@@ -13,6 +15,14 @@ QString primaryButtonStyle()
         "QPushButton{background:#2f78e8;color:#ffffff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;min-height:38px;}"
         "QPushButton:hover{background:#2468cc;}"
         "QPushButton:pressed{background:#1d57aa;}");
+}
+
+QString secondaryButtonStyle()
+{
+    return QStringLiteral(
+        "QPushButton{background:#ffffff;color:#2f78e8;border:1px solid #bfd4f6;border-radius:6px;padding:6px 14px;font-weight:600;min-height:32px;}"
+        "QPushButton:hover{background:#edf4ff;}"
+        "QPushButton:pressed{background:#dbe9ff;}");
 }
 }
 
@@ -32,16 +42,36 @@ dtuset::dtuset(QWidget *parent) :
     if (QPushButton *button = findChild<QPushButton *>(QStringLiteral("read_Button"))) {
         button->setText(QStringLiteral("读取参数"));
         button->setStyleSheet(primaryButtonStyle());
+        button->setMinimumHeight(38);
     }
     if (QPushButton *button = findChild<QPushButton *>(QStringLiteral("set_Button"))) {
         button->setText(QStringLiteral("写入参数"));
         button->setStyleSheet(primaryButtonStyle());
+        button->setMinimumHeight(38);
     }
     setLabelText("pageTitle", QStringLiteral("DTU 参数配置"));
     setLabelText("pageSubtitle", QStringLiteral("维护 DTU 运行模式、短信中心、串口速率以及四个上行通道的协议、地址和端口。"));
     setLabelText("labelBaseTitle", QStringLiteral("基础通信配置"));
     setLabelText("pageHeaderBadgeValue", QStringLiteral("快速操作"));
     setLabelText("tableHintLabel", QStringLiteral("建议先读取当前参数，再按通道逐项修改。"));
+    if (QPushButton *setButton = findChild<QPushButton *>(QStringLiteral("set_Button"))) {
+        QPushButton *clearButton = new QPushButton(QStringLiteral("清空内容"), setButton->parentWidget());
+        clearButton->setObjectName(QStringLiteral("clear_Button"));
+        clearButton->setStyleSheet(secondaryButtonStyle());
+        clearButton->setMinimumHeight(38);
+        if (QBoxLayout *layout = qobject_cast<QBoxLayout *>(setButton->parentWidget()->layout())) {
+            if (QPushButton *readButton = findChild<QPushButton *>(QStringLiteral("read_Button"))) {
+                layout->insertWidget(layout->indexOf(readButton), clearButton);
+            } else {
+                layout->insertWidget(layout->indexOf(setButton), clearButton);
+            }
+        }
+        connect(clearButton, &QPushButton::clicked, this, &dtuset::on_clear_Button_clicked);
+    }
+    if (QFrame *actionCard = findChild<QFrame *>(QStringLiteral("actionCard"))) {
+        actionCard->setMinimumWidth(220);
+        actionCard->setMaximumWidth(240);
+    }
     for (QLineEdit *edit : findChildren<QLineEdit *>()) {
         edit->setMinimumHeight(30);
     }
@@ -93,6 +123,43 @@ void dtuset::syncUiToProtocol()
     on_sms_num3_editingFinished();
     on_sms_num4_editingFinished();
 }
+
+void dtuset::clearDisplayedParameters()
+{
+    memset(&dtuinfo.DTU_info, 0, sizeof(dtuinfo.DTU_info));
+
+    ui->run_model->setCurrentIndex(0);
+    ui->baud_rate->setCurrentIndex(0);
+    ui->sms_code->setCurrentIndex(0);
+
+    ui->Max_data->clear();
+    ui->SMS->clear();
+
+    ui->channel1->setCurrentIndex(0);
+    ui->channel2->setCurrentIndex(0);
+    ui->channel3->setCurrentIndex(0);
+    ui->channel4->setCurrentIndex(0);
+
+    ui->IP1->clear();
+    ui->IP2->clear();
+    ui->IP3->clear();
+    ui->IP4->clear();
+
+    ui->domain1->clear();
+    ui->domain2->clear();
+    ui->domain3->clear();
+    ui->domain4->clear();
+
+    ui->port1->clear();
+    ui->port2->clear();
+    ui->port3->clear();
+    ui->port4->clear();
+
+    ui->sms_num1->clear();
+    ui->sms_num2->clear();
+    ui->sms_num3->clear();
+    ui->sms_num4->clear();
+}
 //void dtuset::SwapDateByte(uint8_t *date,uint8_t n)
 //{
 //    uint8_t temp;
@@ -124,6 +191,11 @@ void dtuset::on_set_Button_clicked()
     m_RTU_ParameterSetting->sMessageLen = pos;
     m_RTU_ParameterSetting->sendmessager_lock.unlock();
     m_RTU_ParameterSetting->m_Device_connection->sendmessage();
+}
+
+void dtuset::on_clear_Button_clicked()
+{
+    clearDisplayedParameters();
 }
 
 void dtuset::on_channel1_currentIndexChanged(int index)

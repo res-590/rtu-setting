@@ -49,6 +49,7 @@ public:
 
 private slots:
     void on_set_Button_clicked();
+    void on_clear_Button_clicked();
     void on_equit_type1_currentIndexChanged(int index);
     void on_equit_type2_currentIndexChanged(int index);
     void on_equit_type3_currentIndexChanged(int index);
@@ -73,6 +74,7 @@ private slots:
 
 private:
     void syncUiToProtocol();
+    void clearDisplayedParameters();
     uint8_t encodePortTypeIndex(int index) const;
     int decodePortTypeValue(uint8_t value) const;
     void fill_portbuand(Port_Protocol &dtuinfobuffer, int comboxindex);

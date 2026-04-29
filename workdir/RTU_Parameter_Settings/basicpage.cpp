@@ -175,6 +175,12 @@ BasicPage::BasicPage(QWidget *parent)
     for (QPushButton *button : findChildren<QPushButton *>()) {
         button->setMinimumHeight(32);
     }
+    const QStringList actionButtons = {QStringLiteral("huifu_Button"), QStringLiteral("read_Button"), QStringLiteral("set_Button")};
+    for (const QString &name : actionButtons) {
+        if (QPushButton *button = findChild<QPushButton *>(name)) {
+            button->setMinimumWidth(96);
+        }
+    }
     for (QCheckBox *checkBox : hourCheckBoxes()) {
         checkBox->setStyleSheet(QStringLiteral("spacing:4px;padding:1px 2px;"));
     }

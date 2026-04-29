@@ -1,8 +1,11 @@
 #include "portset.h"
 #include "ui_portset.h"
 #include "RTU_ParameterSetting.h"
+#include <QBoxLayout>
+#include <QFrame>
 #include <QLabel>
 #include <QPushButton>
+#include <QSizePolicy>
 
 namespace {
 QString primaryButtonStyle()
@@ -11,6 +14,14 @@ QString primaryButtonStyle()
         "QPushButton{background:#2f78e8;color:#ffffff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;min-height:38px;}"
         "QPushButton:hover{background:#2468cc;}"
         "QPushButton:pressed{background:#1d57aa;}");
+}
+
+QString secondaryButtonStyle()
+{
+    return QStringLiteral(
+        "QPushButton{background:#ffffff;color:#2f78e8;border:1px solid #bfd4f6;border-radius:6px;padding:8px 14px;font-weight:600;min-height:38px;}"
+        "QPushButton:hover{background:#edf4ff;}"
+        "QPushButton:pressed{background:#dbe9ff;}");
 }
 }
 
@@ -30,10 +41,14 @@ portset::portset(QWidget *parent) :
     if (QPushButton *button = findChild<QPushButton *>(QStringLiteral("read_Button"))) {
         button->setText(QStringLiteral("读取参数"));
         button->setStyleSheet(primaryButtonStyle());
+        button->setFixedSize(108, 38);
+        button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     }
     if (QPushButton *button = findChild<QPushButton *>(QStringLiteral("set_Button"))) {
         button->setText(QStringLiteral("写入参数"));
         button->setStyleSheet(primaryButtonStyle());
+        button->setFixedSize(108, 38);
+        button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     }
     setLabelText("pageTitle", QStringLiteral("端口参数配置"));
     setLabelText("pageSubtitle", QStringLiteral("按端口维护设备类型、波特率、RF 频点和保留参数。"));
@@ -42,6 +57,25 @@ portset::portset(QWidget *parent) :
     setLabelText("labelPort3Hint", QStringLiteral("采集端口"));
     setLabelText("labelPort4Hint", QStringLiteral("外设接口"));
     setLabelText("labelPort5Hint", QStringLiteral("保留 / 兼容端口"));
+    if (QPushButton *setButton = findChild<QPushButton *>(QStringLiteral("set_Button"))) {
+        QPushButton *clearButton = new QPushButton(QStringLiteral("清空内容"), setButton->parentWidget());
+        clearButton->setObjectName(QStringLiteral("clear_Button"));
+        clearButton->setStyleSheet(secondaryButtonStyle());
+        clearButton->setFixedSize(108, 38);
+        clearButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        if (QBoxLayout *layout = qobject_cast<QBoxLayout *>(setButton->parentWidget()->layout())) {
+            if (QPushButton *readButton = findChild<QPushButton *>(QStringLiteral("read_Button"))) {
+                layout->insertWidget(layout->indexOf(readButton), clearButton);
+            } else {
+                layout->insertWidget(layout->indexOf(setButton), clearButton);
+            }
+        }
+        connect(clearButton, &QPushButton::clicked, this, &portset::on_clear_Button_clicked);
+    }
+    if (QFrame *actionCard = findChild<QFrame *>(QStringLiteral("actionCard"))) {
+        actionCard->setMinimumWidth(420);
+        actionCard->setMaximumWidth(QWIDGETSIZE_MAX);
+    }
     memset(port_info.date,0,sizeof (port_info.date));
 }
 
@@ -98,6 +132,35 @@ void portset::syncUiToProtocol()
     on_keep5_editingFinished();
 }
 
+void portset::clearDisplayedParameters()
+{
+    memset(port_info.date, 0, sizeof(port_info.date));
+
+    ui->equit_type1->setCurrentIndex(0);
+    ui->equit_type2->setCurrentIndex(0);
+    ui->equit_type3->setCurrentIndex(0);
+    ui->equit_type4->setCurrentIndex(0);
+    ui->equit_type5->setCurrentIndex(0);
+
+    ui->baud_rate1->setCurrentIndex(0);
+    ui->baud_rate2->setCurrentIndex(0);
+    ui->baud_rate3->setCurrentIndex(0);
+    ui->baud_rate4->setCurrentIndex(0);
+    ui->baud_rate5->setCurrentIndex(0);
+
+    ui->RF1->setCurrentIndex(0);
+    ui->RF2->setCurrentIndex(0);
+    ui->RF3->setCurrentIndex(0);
+    ui->RF4->setCurrentIndex(0);
+    ui->RF5->setCurrentIndex(0);
+
+    ui->keep1->clear();
+    ui->keep2->clear();
+    ui->keep3->clear();
+    ui->keep4->clear();
+    ui->keep5->clear();
+}
+
 void portset::on_set_Button_clicked()
 {
     syncUiToProtocol();
@@ -117,6 +180,11 @@ void portset::on_set_Button_clicked()
     m_RTU_ParameterSetting->sMessageLen = pos;
     m_RTU_ParameterSetting->sendmessager_lock.unlock();
     m_RTU_ParameterSetting->m_Device_connection->sendmessage();
+}
+
+void portset::on_clear_Button_clicked()
+{
+    clearDisplayedParameters();
 }
 
 

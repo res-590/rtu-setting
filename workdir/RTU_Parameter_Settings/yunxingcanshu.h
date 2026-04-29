@@ -24,6 +24,7 @@ public:
     explicit yunxingcanshu(QWidget *parent = nullptr);
     ~yunxingcanshu();
 
+    void sendFrame(uint8_t afn, const QByteArray &payload = QByteArray(), int8_t sFlag = 0x02);
     void handleQueryTimeResponse();
     void handleAdjustTimeResponse();
     void handleVersionResponse();
@@ -77,7 +78,6 @@ private:
     QByteArray currentPayload() const;
     QString formatMessageTime() const;
     QString extractPrintableText(const QByteArray &payload) const;
-    void sendFrame(uint8_t afn, const QByteArray &payload = QByteArray(), int8_t sFlag = 0x02);
     bool encodeUpgradeFrame(uint8_t *frame,
                             uint32_t &length,
                             int packetIndex,
