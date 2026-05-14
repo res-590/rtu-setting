@@ -1,64 +1,94 @@
-#include "dtuset.h"
+﻿#include "dtuset.h"
 #include "RTU_ParameterSetting.h"
 #include "ui_dtuset.h"
+
 #include <QBoxLayout>
+#include <QComboBox>
+#include <QDebug>
 #include <QFrame>
+#include <QIntValidator>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QComboBox>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
+#include <QStringList>
+#include <QVBoxLayout>
 
 namespace {
 QString primaryButtonStyle()
 {
     return QStringLiteral(
-        "QPushButton{background:#2f78e8;color:#ffffff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;min-height:38px;}"
-        "QPushButton:hover{background:#2468cc;}"
-        "QPushButton:pressed{background:#1d57aa;}");
+        "QPushButton{background:qlineargradient(x1:0,y1:0,x2:1,y2:0,stop:0 #3f7fe8,stop:1 #2f6fdc);}"
+        "QPushButton{color:#ffffff;border:1px solid #2a63c4;border-radius:10px;padding:10px 18px;font-weight:700;min-height:44px;}"
+        "QPushButton:hover{background:qlineargradient(x1:0,y1:0,x2:1,y2:0,stop:0 #4d8bf0,stop:1 #3678e4);}"
+        "QPushButton:pressed{background:#295fc0;}");
 }
 
 QString secondaryButtonStyle()
 {
     return QStringLiteral(
-        "QPushButton{background:#ffffff;color:#2f78e8;border:1px solid #bfd4f6;border-radius:6px;padding:6px 14px;font-weight:600;min-height:32px;}"
-        "QPushButton:hover{background:#edf4ff;}"
-        "QPushButton:pressed{background:#dbe9ff;}");
+        "QPushButton{background:#f7faff;color:#2f6fdc;border:1px solid #bdd1f4;border-radius:10px;padding:10px 14px;font-weight:700;min-height:40px;}"
+        "QPushButton:hover{background:#eef4ff;border:1px solid #9ebef0;}"
+        "QPushButton:pressed{background:#dde9ff;}");
+}
+
+QString cardStyle()
+{
+    return QStringLiteral("background:#ffffff;border:1px solid #dbe6f7;border-radius:18px;");
+}
+
+QString panelStyle()
+{
+    return QStringLiteral(
+        "QWidget#dtuset{background:#f4f7fb;}"
+        "QScrollArea{background:transparent;border:none;}"
+        "QLabel{color:#334155;font-size:13px;}"
+        "QLabel#pageTitle{font-size:28px;font-weight:700;color:#0f172a;}"
+        "QLabel#labelBaseTitle,QLabel#channelSectionTitle{font-size:18px;font-weight:700;color:#0f172a;}"
+        "QLabel#channel1Title,QLabel#channel2Title,QLabel#channel3Title,QLabel#channel4Title{font-size:17px;font-weight:700;color:#0f172a;}"
+        "QLabel#channel1Hint,QLabel#channel2Hint,QLabel#channel3Hint,QLabel#channel4Hint{color:#64748b;font-size:12px;line-height:1.6;}"
+        "QLineEdit,QComboBox{background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:8px 12px;color:#0f172a;selection-background-color:#bfdbfe;}"
+        "QLineEdit:focus,QComboBox:focus{border:1px solid #3b82f6;background:#ffffff;}"
+        "QLineEdit::placeholder{color:#94a3b8;}"
+        "QComboBox::drop-down{border:none;width:30px;}"
+        "QComboBox::down-arrow{image:none;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #64748b;margin-right:10px;}"
+        "QFrame#channel1Card,QFrame#channel2Card,QFrame#channel3Card,QFrame#channel4Card{background:#f8fbff;border:1px solid #d9e7fb;border-radius:16px;}");
 }
 }
 
-dtuset::dtuset(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::dtuset)
+dtuset::dtuset(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::dtuset)
 {
     ui->setupUi(this);
-    ui->summaryCard->hide();
+    setStyleSheet(panelStyle());
     setWindowTitle(QStringLiteral("DTU 参数"));
+
     const auto setLabelText = [this](const char *name, const QString &text) {
         if (QLabel *label = findChild<QLabel *>(QLatin1String(name))) {
             label->setText(text);
             label->setWordWrap(true);
         }
     };
+
+    setLabelText("pageTitle", QStringLiteral("DTU 参数配置"));
+
     if (QPushButton *button = findChild<QPushButton *>(QStringLiteral("read_Button"))) {
         button->setText(QStringLiteral("读取参数"));
         button->setStyleSheet(primaryButtonStyle());
-        button->setMinimumHeight(38);
+        button->setMinimumHeight(44);
     }
     if (QPushButton *button = findChild<QPushButton *>(QStringLiteral("set_Button"))) {
         button->setText(QStringLiteral("写入参数"));
         button->setStyleSheet(primaryButtonStyle());
-        button->setMinimumHeight(38);
+        button->setMinimumHeight(44);
     }
-    setLabelText("pageTitle", QStringLiteral("DTU 参数配置"));
-    setLabelText("pageSubtitle", QStringLiteral("维护 DTU 运行模式、短信中心、串口速率以及四个上行通道的协议、地址和端口。"));
-    setLabelText("labelBaseTitle", QStringLiteral("基础通信配置"));
-    setLabelText("pageHeaderBadgeValue", QStringLiteral("快速操作"));
-    setLabelText("tableHintLabel", QStringLiteral("建议先读取当前参数，再按通道逐项修改。"));
     if (QPushButton *setButton = findChild<QPushButton *>(QStringLiteral("set_Button"))) {
         QPushButton *clearButton = new QPushButton(QStringLiteral("清空内容"), setButton->parentWidget());
-        clearButton->setObjectName(QStringLiteral("clear_Button"));
+        clearButton->setObjectName(QStringLiteral("clearButton"));
         clearButton->setStyleSheet(secondaryButtonStyle());
-        clearButton->setMinimumHeight(38);
+        clearButton->setMinimumHeight(40);
         if (QBoxLayout *layout = qobject_cast<QBoxLayout *>(setButton->parentWidget()->layout())) {
             if (QPushButton *readButton = findChild<QPushButton *>(QStringLiteral("read_Button"))) {
                 layout->insertWidget(layout->indexOf(readButton), clearButton);
@@ -66,25 +96,59 @@ dtuset::dtuset(QWidget *parent) :
                 layout->insertWidget(layout->indexOf(setButton), clearButton);
             }
         }
-        connect(clearButton, &QPushButton::clicked, this, &dtuset::on_clear_Button_clicked);
+        connect(clearButton, &QPushButton::clicked, this, &dtuset::handleClearButtonClicked);
+    }
+
+    ui->summaryCard->hide();
+    if (ui->baseConfigCard != nullptr) {
+        ui->baseConfigCard->setStyleSheet(cardStyle());
+    }
+    if (ui->actionCard != nullptr) {
+        ui->actionCard->setStyleSheet(QStringLiteral("background:qlineargradient(x1:0,y1:0,x2:0,y2:1,stop:0 #f8fbff,stop:1 #eef5ff);border:1px solid #cfe0fb;border-radius:18px;"));
+    }
+    if (QFrame *channelSectionCard = findChild<QFrame *>(QStringLiteral("channelSectionCard"))) {
+        channelSectionCard->setStyleSheet(cardStyle());
     }
     if (QFrame *actionCard = findChild<QFrame *>(QStringLiteral("actionCard"))) {
-        actionCard->setMinimumWidth(220);
-        actionCard->setMaximumWidth(240);
+        actionCard->setMinimumWidth(250);
+        actionCard->setMaximumWidth(300);
     }
+    if (ui->actionCard != nullptr) {
+        if (QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(ui->actionCard->layout())) {
+            layout->addStretch(1);
+        }
+    }
+
     for (QLineEdit *edit : findChildren<QLineEdit *>()) {
-        edit->setMinimumHeight(30);
+        edit->setMinimumHeight(42);
     }
     for (QComboBox *combo : findChildren<QComboBox *>()) {
-        combo->setMinimumHeight(30);
+        combo->setMinimumHeight(42);
     }
     for (QPushButton *button : findChildren<QPushButton *>()) {
-        button->setMinimumHeight(32);
+        button->setMinimumHeight(qMax(button->minimumHeight(), 40));
     }
-    memset(&dtuinfo.DTU_info,0,sizeof(dtuinfo.DTU_info));
+
+    const auto applyIntValidator = [this](const char *name, int min, int max) {
+        if (QLineEdit *edit = findChild<QLineEdit *>(QLatin1String(name))) {
+            edit->setValidator(new QIntValidator(min, max, edit));
+        }
+    };
+    const QRegularExpression ipPattern(QStringLiteral(R"(^(25[0-5]|2[0-4]\d|1?\d?\d)(\.(25[0-5]|2[0-4]\d|1?\d?\d)){0,3}$)"));
+    for (const QString &name : {QStringLiteral("IP1"), QStringLiteral("IP2"), QStringLiteral("IP3"), QStringLiteral("IP4")}) {
+        if (QLineEdit *edit = findChild<QLineEdit *>(name)) {
+            edit->setValidator(new QRegularExpressionValidator(ipPattern, edit));
+        }
+    }
+    applyIntValidator("Max_data", 0, 65535);
+    applyIntValidator("port1", 0, 65535);
+    applyIntValidator("port2", 0, 65535);
+    applyIntValidator("port3", 0, 65535);
+    applyIntValidator("port4", 0, 65535);
+
+    memset(&dtuinfo.DTU_info, 0, sizeof(dtuinfo.DTU_info));
     hide();
 }
-
 dtuset::~dtuset()
 {
     delete ui;
@@ -193,7 +257,7 @@ void dtuset::on_set_Button_clicked()
     m_RTU_ParameterSetting->m_Device_connection->sendmessage();
 }
 
-void dtuset::on_clear_Button_clicked()
+void dtuset::handleClearButtonClicked()
 {
     clearDisplayedParameters();
 }
@@ -591,3 +655,5 @@ void dtuset::handle_DTUINFO(void)
     this->dtuinfo = dtuinfobuffer;
 //this->dtuinfo.DTU_info.message_CompileType = index - 1;
 }
+
+

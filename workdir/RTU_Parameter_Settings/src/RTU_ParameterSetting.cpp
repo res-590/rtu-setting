@@ -3,6 +3,19 @@
 #define HIOCTET(b)              ((BYTE)((((BYTE)(b)) >>4) &0x0f))
 
 RTU_ParameterSetting *m_RTU_ParameterSetting;
+
+namespace {
+uint16_t nextMessageSerial()
+{
+    static uint16_t serial = 1;
+    const uint16_t current = serial;
+    ++serial;
+    if (serial == 0) {
+        serial = 1;
+    }
+    return current;
+}
+}
 RTU_ParameterSetting::RTU_ParameterSetting()
 {
     m_MainWindow = nullptr;
@@ -110,8 +123,9 @@ void Message_MainbadyEncode(RTU_Message_s *dateinfo,uint8_t AFN,int8_t sFlag,int
     dateinfo->message.AFN = AFN;
     dateinfo->message.SFlag = sFlag;
     ///<流水号应该是全局变量
-    dateinfo->message.Serialnumber[0] = 0x00;
-    dateinfo->message.Serialnumber[1] = 0x00;
+    const uint16_t serial = nextMessageSerial();
+    dateinfo->message.Serialnumber[0] = static_cast<uint8_t>((serial >> 8) & 0xff);
+    dateinfo->message.Serialnumber[1] = static_cast<uint8_t>(serial & 0xff);
     ///<获取当前时间
     time_t t = time(NULL);
     struct tm* info = localtime(&t);

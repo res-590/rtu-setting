@@ -40,6 +40,7 @@ public slots:
 private slots:
     void on_OpenSerialButton_clicked();
     void ReadData();
+    void refreshAvailablePorts();
 
     void on_SendButton_clicked();
 
@@ -53,6 +54,7 @@ private:
     SerialWorkThread *m_WorkThread;
     SerialWorkThread *m_DeencodeThread;
     QByteArray m_receiveBuffer;
+    QTimer *m_portRefreshTimer;
 };
 
 #endif // DEVICE_CONNECTION_H

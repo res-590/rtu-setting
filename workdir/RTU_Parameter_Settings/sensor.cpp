@@ -10,6 +10,7 @@
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QFrame>
+#include <QGridLayout>
 #include <QHeaderView>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -31,9 +32,10 @@ QString buttonStyle(const QString &background)
 {
     return QStringLiteral(
                "QPushButton{background:%1;color:#ffffff;border:none;border-radius:4px;padding:8px 18px;font-weight:600;}"
-               "QPushButton:hover{filter:brightness(0.95);}"
+               "QPushButton:hover{background:%2;}"
                "QPushButton:pressed{padding-top:9px;padding-bottom:7px;}")
-        .arg(background);
+        .arg(background,
+             background == QStringLiteral("#2f78e8") ? QStringLiteral("#2468cc") : background);
 }
 
 QString subtleButtonStyle()
@@ -378,6 +380,485 @@ QMap<int, QVector<int>> defaultSensorElementMap()
         {92, {176, 177, 178, 179, 180}}
     };
 }
+
+QMap<int, QString> configuredSensorNameMap()
+{
+    return {
+        {1, QStringLiteral("雨量计 - JD05型翻斗式雨量计")},
+        {2, QStringLiteral("水位计 - GL-1型量水位计")},
+        {3, QStringLiteral("水堰计 - 磁致伸缩式量水堰计")},
+        {4, QStringLiteral("水位计 - 非接触式雷达水位计")},
+        {5, QStringLiteral("水位计 - 压力水位计")},
+        {6, QStringLiteral("水位计 - OTT CBS气泡式水位计")},
+        {7, QStringLiteral("物位计 - GDRD56型雷达物位计")},
+        {8, QStringLiteral("流量计 - 堰槽流量计")},
+        {9, QStringLiteral("相机 - 科皓相机（标清）")},
+        {10, QStringLiteral("水位计 - MPM系列压力水位计")},
+        {11, QStringLiteral("水位计 - OTT RLS雷达水位计")},
+        {12, QStringLiteral("水位计 - 气泡水位计")},
+        {13, QStringLiteral("水位计 - KH.WQX-1型气泡水位计")},
+        {14, QStringLiteral("水位计 - 浮子式自收缆水位计")},
+        {15, QStringLiteral("传感器 - 墒情传感器")},
+        {16, QStringLiteral("传感器 - 风速风向一体式传感器")},
+        {17, QStringLiteral("传感器 - 大气温度传感器")},
+        {18, QStringLiteral("水位计 - 陶瓷压力式水位计")},
+        {19, QStringLiteral("闸位计 - KS10闸位计")},
+        {20, QStringLiteral("水位计 - RS485水位计 浮子水位计")},
+        {21, QStringLiteral("流量计 - MAG电磁流量计")},
+        {22, QStringLiteral("流量计 - 超声波流量计")},
+        {23, QStringLiteral("水位计 - 鼎恒水位计")},
+        {24, QStringLiteral("传感器 - 水质传感器")},
+        {25, QStringLiteral("传感器 - 水质传感器-COD")},
+        {26, QStringLiteral("流量计 - TUF-2000流量计")},
+        {27, QStringLiteral("流量计 - 多普勒超声波明渠流量计")},
+        {28, QStringLiteral("流速仪 - 电波流速仪")},
+        {29, QStringLiteral("雷达测流设备（流量与水位）")},
+        {30, QStringLiteral("水位计 - 数字压力水位计")},
+        {31, QStringLiteral("物位计 - 水文雷达物位计")},
+        {32, QStringLiteral("传感器 - OTT DS5X水质传感器")},
+        {33, QStringLiteral("传感器 - 气象传感器")},
+        {34, QStringLiteral("水位计 - LWT水位计")},
+        {35, QStringLiteral("流速仪 - 华儒流速仪")},
+        {36, QStringLiteral("传感器 - SWR系列墒情传感器")},
+        {37, QStringLiteral("温湿度传感器 - WT1821温湿度传感器")},
+        {38, QStringLiteral("相机 - 科皓相机（高清）")},
+        {39, QStringLiteral("流量计 - 开封流量计")},
+        {40, QStringLiteral("流量计 - 明渠流量计")},
+        {41, QStringLiteral("水位计 - 超声波水位计")},
+        {42, QStringLiteral("流速仪 - 航征雷达流速仪")},
+        {43, QStringLiteral("水位计 - TC401电子水尺")},
+        {44, QStringLiteral("水位计 - WYZ-80Z")},
+        {45, QStringLiteral("流速仪 - RSS-2-300W雷达流速仪")},
+        {46, QStringLiteral("流量计 - 汇中超声流量计")},
+        {47, QStringLiteral("流量计 - 奥泰AOJ5000")},
+        {48, QStringLiteral("流量计 - IFC110电磁流量计")},
+        {49, QStringLiteral("流量计 - 宇星流量计")},
+        {50, QStringLiteral("流量计 - 凯思达超声波流量计")},
+        {51, QStringLiteral("流量计 - 凯思达电磁流量计")},
+        {52, QStringLiteral("流速仪 - RG30雷达流速仪")},
+        {53, QStringLiteral("流量计 - 昆仑LDBE-65流量计")},
+        {54, QStringLiteral("水位计 - 华禹HYCS-1型超声波液位计")},
+        {55, QStringLiteral("流量计 - LSZ型超声波多普勒流量计")},
+        {56, QStringLiteral("流量计 - KH.UOCF-301流量计")},
+        {57, QStringLiteral("水位计 - 科皓KH.WLX-1雷达水位计")},
+        {60, QStringLiteral("水位计 - 金水华禹超声波液位计")},
+        {61, QStringLiteral("水质传感器 - 凯米斯水质传感器")},
+        {62, QStringLiteral("流量计 - 华聚流量计")},
+        {63, QStringLiteral("水质传感器 - 天健创新水质传感器")},
+        {64, QStringLiteral("GNSS - 吉欧MIS210")},
+        {65, QStringLiteral("MCU - MCU设备")},
+        {66, QStringLiteral("渗压计 - 南京葛南GDA1602(1)")},
+        {67, QStringLiteral("渗压计 - 北京基康采集模组")},
+        {70, QStringLiteral("MCU - STR-5型通讯模块")},
+        {72, QStringLiteral("MCU - 峟思MCU通讯模块")},
+        {73, QStringLiteral("水堰计 - 峟思磁致伸缩式量水堰计")},
+        {74, QStringLiteral("水位计 - 葛南水位计")},
+        {75, QStringLiteral("MCU - 科皓单通道MCU")},
+        {76, QStringLiteral("MCU - 科皓八通道MCU")},
+        {77, QStringLiteral("MCU - 科皓十六通道MCU")},
+        {88, QStringLiteral("传感器 - 风速风向传感器")},
+        {89, QStringLiteral("传感器 - 温湿度气压传感器")},
+        {90, QStringLiteral("传感器 - 探针土壤传感器")},
+        {91, QStringLiteral("传感器 - 大气电场仪传感器")},
+        {92, QStringLiteral("传感器 - N系列能见度传感器")}
+    };
+}
+
+QMap<int, QString> configuredPortNameMap()
+{
+    return {
+        {0, QStringLiteral("开关输入S1")},
+        {1, QStringLiteral("开关输入S2")},
+        {4, QStringLiteral("模拟量A1")},
+        {5, QStringLiteral("模拟量A2")},
+        {8, QStringLiteral("485串口COM3")},
+        {9, QStringLiteral("485串口COM4")},
+        {10, QStringLiteral("485串口COM5")},
+        {12, QStringLiteral("232串口COM1")},
+        {13, QStringLiteral("232串口COM2")},
+        {14, QStringLiteral("232串口COM5")},
+        {16, QStringLiteral("格雷码串口COM5")}
+    };
+}
+
+QMap<int, QString> configuredElementNameMap()
+{
+    return {
+        {2, QStringLiteral("瞬时气温")},
+        {8, QStringLiteral("气压")},
+        {9, QStringLiteral("闸位")},
+        {16, QStringLiteral("10CM墒情")},
+        {17, QStringLiteral("20CM墒情")},
+        {18, QStringLiteral("30CM墒情")},
+        {19, QStringLiteral("40CM墒情")},
+        {20, QStringLiteral("50CM墒情")},
+        {21, QStringLiteral("60CM墒情")},
+        {22, QStringLiteral("80CM墒情")},
+        {23, QStringLiteral("100CM墒情")},
+        {24, QStringLiteral("湿度")},
+        {31, QStringLiteral("日降水量")},
+        {32, QStringLiteral("当前降水量")},
+        {38, QStringLiteral("累计降水量")},
+        {39, QStringLiteral("瞬时流量")},
+        {40, QStringLiteral("取(排)水口流量1")},
+        {41, QStringLiteral("取(排)水口流量2")},
+        {42, QStringLiteral("取(排)水口流量3")},
+        {43, QStringLiteral("取(排)水口流量4")},
+        {44, QStringLiteral("取(排)水口流量5")},
+        {48, QStringLiteral("总出库流量")},
+        {51, QStringLiteral("风向")},
+        {53, QStringLiteral("风速")},
+        {54, QStringLiteral("平均流速")},
+        {55, QStringLiteral("瞬时流速")},
+        {57, QStringLiteral("瞬时河道水位")},
+        {58, QStringLiteral("库下水位")},
+        {59, QStringLiteral("库上水位")},
+        {60, QStringLiteral("水位(取水口1)")},
+        {61, QStringLiteral("水位(取水口2)")},
+        {62, QStringLiteral("水位(取水口3)")},
+        {63, QStringLiteral("水位(取水口4)")},
+        {64, QStringLiteral("水位(取水口5)")},
+        {65, QStringLiteral("水位(取水口6)")},
+        {66, QStringLiteral("水位(取水口7)")},
+        {70, QStringLiteral("pH")},
+        {71, QStringLiteral("溶解氧")},
+        {76, QStringLiteral("氨氮")},
+        {88, QStringLiteral("水压1")},
+        {89, QStringLiteral("水压2")},
+        {90, QStringLiteral("水压3")},
+        {91, QStringLiteral("水压4")},
+        {92, QStringLiteral("水压5")},
+        {93, QStringLiteral("水压6")},
+        {94, QStringLiteral("水压7")},
+        {95, QStringLiteral("水压8")},
+        {104, QStringLiteral("累计流量")},
+        {118, QStringLiteral("水量")},
+        {120, QStringLiteral("频模、温度")},
+        {160, QStringLiteral("渗压水位1")},
+        {161, QStringLiteral("渗压水位2")},
+        {162, QStringLiteral("渗压水位3")},
+        {163, QStringLiteral("渗压水位4")},
+        {164, QStringLiteral("渗压水位5")},
+        {165, QStringLiteral("渗压水位6")},
+        {166, QStringLiteral("渗压水位7")},
+        {167, QStringLiteral("渗压水位8")},
+        {168, QStringLiteral("渗压水位9")},
+        {169, QStringLiteral("土壤温度")},
+        {170, QStringLiteral("土壤含水量")},
+        {171, QStringLiteral("土壤导电率")},
+        {172, QStringLiteral("土壤含盐率")},
+        {173, QStringLiteral("电场转速")},
+        {174, QStringLiteral("电场值")},
+        {175, QStringLiteral("报警等级")},
+        {176, QStringLiteral("15s能见度")},
+        {177, QStringLiteral("1min能见度")},
+        {178, QStringLiteral("10min能见度")},
+        {179, QStringLiteral("设备状态")},
+        {180, QStringLiteral("天气气象")},
+        {243, QStringLiteral("图片数据")},
+        {60950, QStringLiteral("X位移")},
+        {60951, QStringLiteral("Y位移")},
+        {60952, QStringLiteral("Z位移")},
+        {65288, QStringLiteral("渗流")},
+        {65313, QStringLiteral("垂直高度")},
+        {65314, QStringLiteral("频率、温度")}
+    };
+}
+
+QMap<int, QString> configuredElementNameMapForProtocol2()
+{
+    return {
+        {0, QStringLiteral("雨量")},
+        {1, QStringLiteral("水位")},
+        {2, QStringLiteral("流量/水量")},
+        {3, QStringLiteral("流速")},
+        {4, QStringLiteral("闸位")},
+        {5, QStringLiteral("功率")},
+        {6, QStringLiteral("气压")},
+        {7, QStringLiteral("风速风向")},
+        {8, QStringLiteral("水温")},
+        {9, QStringLiteral("水质")},
+        {10, QStringLiteral("墒情")},
+        {11, QStringLiteral("蒸发量")},
+        {12, QStringLiteral("水压")},
+        {13, QStringLiteral("图像")},
+        {14, QStringLiteral("水温")},
+        {15, QStringLiteral("PH值")},
+        {16, QStringLiteral("溶解氧")},
+        {17, QStringLiteral("高锰酸盐指数")},
+        {18, QStringLiteral("电导率")},
+        {19, QStringLiteral("氧化还原电位")},
+        {20, QStringLiteral("浊度")},
+        {21, QStringLiteral("化学需氧量")},
+        {22, QStringLiteral("五日生化需氧量")},
+        {23, QStringLiteral("氨氮")},
+        {24, QStringLiteral("总氮")},
+        {39, QStringLiteral("瞬时流量")}
+    };
+}
+
+QMap<int, QString> configuredElementNameMapForProtocol3()
+{
+    return {
+        {2, QStringLiteral("瞬时气温")},
+        {9, QStringLiteral("闸位")},
+        {16, QStringLiteral("10CM墒情")},
+        {17, QStringLiteral("20CM墒情")},
+        {18, QStringLiteral("30CM墒情")},
+        {19, QStringLiteral("40CM墒情")},
+        {20, QStringLiteral("50CM墒情")},
+        {21, QStringLiteral("60CM墒情")},
+        {22, QStringLiteral("80CM墒情")},
+        {23, QStringLiteral("100CM墒情")},
+        {31, QStringLiteral("当前降水量")},
+        {32, QStringLiteral("累计降水量")},
+        {38, QStringLiteral("累计降水量")},
+        {39, QStringLiteral("瞬时流量")},
+        {40, QStringLiteral("取(排)水口流量1")},
+        {41, QStringLiteral("取(排)水口流量2")},
+        {42, QStringLiteral("取(排)水口流量3")},
+        {43, QStringLiteral("取(排)水口流量4")},
+        {44, QStringLiteral("取(排)水口流量5")},
+        {48, QStringLiteral("总出库流量")},
+        {53, QStringLiteral("风速")},
+        {54, QStringLiteral("平均流速")},
+        {55, QStringLiteral("瞬时流速")},
+        {57, QStringLiteral("瞬时河道水位")},
+        {58, QStringLiteral("库下水位")},
+        {59, QStringLiteral("库上水位")},
+        {60, QStringLiteral("水位(取水口1)")},
+        {61, QStringLiteral("水位(取水口2)")},
+        {62, QStringLiteral("水位(取水口3)")},
+        {63, QStringLiteral("水位(取水口4)")},
+        {64, QStringLiteral("水位(取水口5)")},
+        {65, QStringLiteral("水位(取水口6)")},
+        {66, QStringLiteral("水位(取水口7)")},
+        {70, QStringLiteral("pH")},
+        {71, QStringLiteral("溶解氧")},
+        {76, QStringLiteral("氨氮")},
+        {104, QStringLiteral("累计流量")},
+        {243, QStringLiteral("图片数据")}
+    };
+}
+
+QMap<int, QString> configuredElementNameMapForProtocol(int protocolProfile)
+{
+    switch (protocolProfile) {
+    case 2:
+        return configuredElementNameMapForProtocol2();
+    case 3:
+        return configuredElementNameMapForProtocol3();
+    case 1:
+    default:
+        return configuredElementNameMap();
+    }
+}
+
+QMap<int, QVector<int>> configuredSensorElementMap()
+{
+    return {
+        {1, {31, 32, 38}},
+        {2, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {3, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 65288}},
+        {4, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {5, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {6, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {7, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {8, {39, 40, 41, 42, 43, 44, 48, 104}},
+        {9, {243}},
+        {10, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 160, 161, 162, 163, 164, 165, 166, 167, 168}},
+        {11, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {12, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {13, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {14, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {15, {16, 17, 18, 19, 20, 21, 22, 23}},
+        {16, {53}},
+        {17, {2}},
+        {18, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {19, {9}},
+        {20, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 160, 161, 162, 163, 164, 165, 166, 167, 168}},
+        {21, {39, 40, 41, 42, 43, 44, 48, 104}},
+        {22, {39, 40, 41, 42, 43, 44, 48, 104}},
+        {23, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {24, {70, 71, 76}},
+        {25, {70, 71, 76}},
+        {26, {39, 40, 41, 42, 43, 44, 48, 104}},
+        {27, {39, 40, 41, 42, 43, 44, 48, 104}},
+        {28, {70, 71, 76}},
+        {29, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {30, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {31, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {32, {70, 71, 76}},
+        {33, {70, 71, 76}},
+        {34, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {35, {54, 55}},
+        {36, {16, 17, 18, 19, 20, 21, 22, 23}},
+        {38, {243}},
+        {39, {39, 40, 41, 42, 43, 44, 48, 104}},
+        {40, {39, 40, 41, 42, 43, 44, 48, 104}},
+        {41, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {42, {54, 55}},
+        {43, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {45, {54, 55}},
+        {46, {39, 40, 41, 42, 43, 44, 48, 104}},
+        {47, {39, 40, 41, 42, 43, 44, 48, 104}},
+        {48, {39, 40, 41, 42, 43, 44, 48, 104}},
+        {49, {39, 40, 41, 42, 43, 44, 48, 104}},
+        {50, {39, 40, 41, 42, 43, 44, 48, 104}},
+        {51, {39, 40, 41, 42, 43, 44, 48, 104}},
+        {52, {54, 55}},
+        {53, {39, 40, 41, 42, 43, 44, 48, 104, 118}},
+        {54, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {55, {104, 118}},
+        {56, {104, 118}},
+        {57, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 65288}},
+        {60, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {62, {39, 40, 41, 42, 43, 44, 48, 104}},
+        {64, {60950, 60951, 60952, 65313}},
+        {65, {88, 89, 90, 91, 92, 93, 94, 95, 65288}},
+        {66, {65314}},
+        {67, {65314}},
+        {70, {120}},
+        {72, {160}},
+        {73, {60, 65288}},
+        {74, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {75, {120, 160, 161, 162, 163, 164, 165, 166, 167, 168}},
+        {76, {120, 160, 161, 162, 163, 164, 165, 166, 167, 168}},
+        {77, {120, 160, 161, 162, 163, 164, 165, 166, 167, 168}},
+        {80, {57, 58, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {88, {51, 53}},
+        {89, {2, 24, 8}},
+        {90, {169, 170, 171, 172}},
+        {91, {173, 174, 175}},
+        {92, {176, 177, 178, 179, 180}}
+    };
+}
+
+QMap<int, QVector<int>> configuredSensorElementMapForProtocol2()
+{
+    return {
+        {1, {0}},
+        {2, {1}},
+        {3, {1}},
+        {4, {1}},
+        {5, {1}},
+        {6, {1}},
+        {7, {1}},
+        {8, {2}},
+        {9, {13}},
+        {10, {1}},
+        {11, {1}},
+        {12, {1}},
+        {13, {1}},
+        {14, {1}},
+        {15, {10}},
+        {16, {7}},
+        {17, {8}},
+        {18, {1}},
+        {19, {4}},
+        {20, {1}},
+        {21, {2}},
+        {22, {2}},
+        {23, {1}},
+        {24, {16, 17}},
+        {25, {16, 17}},
+        {26, {2}},
+        {27, {2}},
+        {28, {}},
+        {29, {1}},
+        {30, {1}},
+        {31, {1}},
+        {32, {}},
+        {33, {}},
+        {34, {1}},
+        {35, {}},
+        {36, {10}},
+        {53, {2, 39}},
+        {54, {1}},
+        {55, {2, 39}},
+        {56, {2, 39}},
+        {57, {1}},
+        {60, {1}},
+        {61, {14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24}},
+        {62, {2}},
+        {63, {14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24}}
+    };
+}
+
+QMap<int, QVector<int>> configuredSensorElementMapForProtocol3()
+{
+    return {
+        {1, {32}},
+        {2, {60}},
+        {3, {60}},
+        {4, {60}},
+        {5, {60}},
+        {6, {60}},
+        {7, {60}},
+        {8, {39, 104}},
+        {9, {243}},
+        {10, {60}},
+        {11, {60}},
+        {12, {60}},
+        {13, {57, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {14, {60}},
+        {15, {16, 17, 18, 19, 20, 21, 22, 23}},
+        {16, {53}},
+        {17, {2}},
+        {18, {60}},
+        {19, {9}},
+        {20, {57, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {21, {39, 104}},
+        {22, {39, 104}},
+        {23, {60}},
+        {24, {}},
+        {25, {}},
+        {26, {39, 104}},
+        {27, {39, 104}},
+        {28, {}},
+        {29, {60}},
+        {30, {60}},
+        {31, {60}},
+        {32, {}},
+        {33, {}},
+        {34, {60}},
+        {35, {54, 55}},
+        {36, {16, 17, 18, 19, 20, 21, 22, 23}},
+        {38, {243}},
+        {39, {39, 104}},
+        {40, {39, 104}},
+        {41, {57, 59, 60, 61, 62, 63, 64, 65, 66}},
+        {42, {54}},
+        {43, {60}},
+        {45, {54}},
+        {46, {39, 104}},
+        {47, {39, 104}},
+        {48, {39, 104}},
+        {49, {39, 104}},
+        {50, {39, 104}},
+        {51, {39, 104}},
+        {52, {54}},
+        {53, {39, 104}},
+        {54, {60}},
+        {56, {104, 118}},
+        {57, {60}},
+        {60, {57, 59, 60}},
+        {62, {39, 104}}
+    };
+}
+
+QMap<int, QVector<int>> configuredSensorElementMapForProtocol(int protocolProfile)
+{
+    switch (protocolProfile) {
+    case 2:
+        return configuredSensorElementMapForProtocol2();
+    case 3:
+        return configuredSensorElementMapForProtocol3();
+    case 1:
+    default:
+        return configuredSensorElementMap();
+    }
+}
 }
 
 sensor::sensor(QWidget *parent)
@@ -521,7 +1002,7 @@ void sensor::loadPortMappings()
     m_portCodeToText.clear();
     m_portTextToCode.clear();
 
-    const QMap<int, QString> defaults = defaultPortNameMap();
+    const QMap<int, QString> defaults = configuredPortNameMap();
     for (auto it = defaults.cbegin(); it != defaults.cend(); ++it) {
         m_portCodeToText.insert(it.key(), it.value());
         m_portTextToCode.insert(it.value(), it.key());
@@ -566,9 +1047,9 @@ void sensor::loadModelMappings()
 {
     m_modelCodeToText.clear();
     m_modelTextToCode.clear();
-    m_modelCodeToElementCodes = defaultSensorElementMap();
+    m_modelCodeToElementCodes = configuredSensorElementMap();
 
-    const QMap<int, QString> defaults = defaultSensorNameMap();
+    const QMap<int, QString> defaults = configuredSensorNameMap();
     for (auto it = defaults.cbegin(); it != defaults.cend(); ++it) {
         m_modelCodeToText.insert(it.key(), it.value());
         m_modelTextToCode.insert(it.value(), it.key());
@@ -596,7 +1077,8 @@ void sensor::loadModelMappings()
 
             const QString instanceCodeString = settings.value(group + QStringLiteral("/instancecode")).toString().trimmed();
             const QVector<int> elementCodes = parseHexSequence(instanceCodeString);
-            if (!elementCodes.isEmpty() && !m_modelCodeToElementCodes.contains(modelCode)) {
+            if (!elementCodes.isEmpty() &&
+                (!m_modelCodeToElementCodes.contains(modelCode) || m_modelCodeToElementCodes.value(modelCode).isEmpty())) {
                 m_modelCodeToElementCodes.insert(modelCode, elementCodes);
             }
         }
@@ -608,7 +1090,7 @@ void sensor::loadElementMappings()
     m_elementCodeToText.clear();
     m_elementTextToCode.clear();
 
-    const QMap<int, QString> defaults = defaultElementNameMap();
+    const QMap<int, QString> defaults = configuredElementNameMap();
     for (auto it = defaults.cbegin(); it != defaults.cend(); ++it) {
         m_elementCodeToText.insert(it.key(), it.value());
         m_elementTextToCode.insert(it.value(), it.key());
@@ -641,6 +1123,22 @@ void sensor::loadAppendMappings()
 {
     m_appendCodeToText.clear();
     m_appendTextToCode.clear();
+
+    const QVector<QPair<int, QString>> configuredAppendItems = {
+        {0, QStringLiteral("请选择")},
+        {1, QStringLiteral("80×60")},
+        {3, QStringLiteral("160×120")},
+        {5, QStringLiteral("320×240")},
+        {7, QStringLiteral("640×480")},
+        {9, QStringLiteral("980×780")}
+    };
+
+    for (const auto &item : configuredAppendItems) {
+        m_appendCodeToText.insert(item.first, item.second);
+        m_appendTextToCode.insert(item.second, item.first);
+    }
+
+    return;
 
     const QVector<QPair<int, QString>> appendItems = {
         {1, QStringLiteral("80×60")},

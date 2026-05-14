@@ -49,7 +49,7 @@ public:
 
 private slots:
     void on_set_Button_clicked();
-    void on_clear_Button_clicked();
+    void handleClearButtonClicked();
     void on_equit_type1_currentIndexChanged(int index);
     void on_equit_type2_currentIndexChanged(int index);
     void on_equit_type3_currentIndexChanged(int index);

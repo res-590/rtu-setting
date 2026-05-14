@@ -57,16 +57,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QLabel" name="pageSubtitle">
-        <property name="text">
-         <string>集中维护运行模式、短信中心、串口速率以及四个上行通道的协议、地址、端口与服务号码。</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -262,23 +252,6 @@
             <property name="bottomMargin">
              <number>18</number>
             </property>
-            <item>
-             <widget class="QLabel" name="pageHeaderBadgeValue">
-              <property name="text">
-               <string>快速操作</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="tableHintLabel">
-              <property name="text">
-               <string>先读取设备当前参数，再批量修改。四个通道区域统一放在下方，适合按链路逐项检查。</string>
-              </property>
-              <property name="wordWrap">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
             <item>
              <widget class="QPushButton" name="read_Button">
               <property name="text">

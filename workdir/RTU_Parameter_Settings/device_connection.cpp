@@ -70,55 +70,59 @@ QString afnDescription(uint8_t afn)
     case 0x00:
         return QStringLiteral("ACK");
     case AFN_SETRTUPARAM:
-        return QStringLiteral("设置 DTU 参数");
+        return QString::fromUtf8("设置 DTU 参数");
     case AFN_SETDTUPARAM:
-        return QStringLiteral("设置端口参数");
+        return QString::fromUtf8("设置端口参数");
     case AFN_READRTUPARAM:
-        return QStringLiteral("读取 DTU 参数");
+        return QString::fromUtf8("读取 DTU 参数");
     case AFN_READDTUPARAM:
-        return QStringLiteral("读取端口参数");
+        return QString::fromUtf8("读取端口参数");
     case AFN_BASEPARAM:
-        return QStringLiteral("设置基础参数");
+        return QString::fromUtf8("设置基本参数");
     case AFN_READBASEPARAM:
-        return QStringLiteral("读取基础参数");
+        return QString::fromUtf8("读取基本参数");
     case AFN_SETRUNPARAM:
-        return QStringLiteral("设置运行参数");
+        return QString::fromUtf8("设置运行参数");
     case AFN_READRUNRPARAM:
-        return QStringLiteral("读取运行参数");
+        return QString::fromUtf8("读取运行参数");
     case AFN_QUERYVERSION:
-        return QStringLiteral("查询版本");
+        return QString::fromUtf8("查询版本");
     case AFN_QUERYSTATUS:
-        return QStringLiteral("查询工况");
+        return QString::fromUtf8("查询工况");
     case AFN_FORMATSD:
-        return QStringLiteral("格式化 SD 卡");
+        return QString::fromUtf8("格式化 SD 卡");
     case AFN_RESETFACTORY:
-        return QStringLiteral("恢复出厂设置");
+        return QString::fromUtf8("恢复出厂设置");
     case AFN_ADJUSTTIME:
-        return QStringLiteral("校准测站时间");
+        return QString::fromUtf8("校准测站时间");
     case AFN_QUERYTIME:
-        return QStringLiteral("查询测站时间");
+        return QString::fromUtf8("查询测站时间");
     case AFN_RESETRTU:
-        return QStringLiteral("远程重启测站");
+        return QString::fromUtf8("远程重启测站");
     case AFN_OUTPORTCONTROL:
-        return QStringLiteral("输出端口控制");
+        return QString::fromUtf8("输出端口控制");
     case AFN_OUTPORTQUERY:
-        return QStringLiteral("输出端口状态查询");
+        return QString::fromUtf8("输出端口状态查询");
     case AFN_UPGRADERTU:
-        return QStringLiteral("远程升级");
+        return QString::fromUtf8("远程升级");
     case 0x2F:
-        return QStringLiteral("链路维持报");
+        return QString::fromUtf8("链路维持报文");
     case 0x30:
-        return QStringLiteral("传感器相关返回");
+        return QString::fromUtf8("实时数据查询返回");
     case 0x34:
-        return QStringLiteral("运行参数异步返回");
+        return QString::fromUtf8("运行参数异步返回");
+    case 0x36:
+        return QString::fromUtf8("图片/特殊要素查询返回");
+    case 0x3A:
+        return QString::fromUtf8("指定要素实时数据查询返回");
     default:
-        return QStringLiteral("未知报文");
+        return QString::fromUtf8("未知报文");
     }
 }
 
 QString afnLabel(uint8_t afn)
 {
-    return QStringLiteral("AFN 0x%1：%2")
+    return QString::fromUtf8("AFN 0x%1：%2")
         .arg(afn, 2, 16, QLatin1Char('0'))
         .arg(afnDescription(afn));
 }
@@ -141,19 +145,10 @@ void learnFrameBaseInfo(RTU_Message_s &message)
 Device_connection::Device_connection(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Device_connection)
+    , m_portRefreshTimer(nullptr)
 {
     ui->setupUi(this);
     ui->summaryCard->hide();
-
-    const auto infos = QSerialPortInfo::availablePorts();
-    for (const QSerialPortInfo &info : infos) {
-        ui->PortBox->addItem(info.portName());
-    }
-
-    const int com4Index = ui->PortBox->findText(QStringLiteral("COM4"));
-    if (com4Index >= 0) {
-        ui->PortBox->setCurrentIndex(com4Index);
-    }
 
     ui->BackButton->hide();
 
@@ -170,32 +165,38 @@ Device_connection::Device_connection(QWidget *parent)
     m_WorkThread->serial_status = false;
     m_DeencodeThread = nullptr;
 
-    setWindowTitle(QStringLiteral("通信设置"));
-    ui->configTitleLabel->setText(QStringLiteral("串口配置"));
-    ui->configHintLabel->setText(QStringLiteral("确认串口、波特率和帧格式后再打开连接，连接成功后配置项会锁定。"));
-    ui->serialStatusTitleLabel->setText(QStringLiteral("连接状态"));
-    ui->serialGroupTitleLabel->setText(QStringLiteral("基础连接"));
-    ui->serialGroupTitleLabel_2->setText(QStringLiteral("帧格式"));
-    ui->monitorTitleLabel->setText(QStringLiteral("通信控制台"));
+    setWindowTitle(QString::fromUtf8("通信设置"));
+    ui->configTitleLabel->setText(QString::fromUtf8("串口配置"));
+    ui->configHintLabel->setText(QString::fromUtf8("确认串口、波特率和帧格式后再打开连接，连接成功后配置项会锁定。"));
+    ui->serialStatusTitleLabel->setText(QString::fromUtf8("连接状态"));
+    ui->serialGroupTitleLabel->setText(QString::fromUtf8("基础连接"));
+    ui->serialGroupTitleLabel_2->setText(QString::fromUtf8("帧格式"));
+    ui->monitorTitleLabel->setText(QString::fromUtf8("通信控制台"));
     ui->monitorPortLabel->setWordWrap(true);
-    ui->sendHintLabel->setText(QStringLiteral("输入调试指令后发送。"));
-    ui->OpenSerialButton->setText(QStringLiteral("打开串口"));
-    ui->BackButton->setText(QStringLiteral("关闭页面"));
-    ui->SendButton->setText(QStringLiteral("发送"));
-    ui->label->setText(QStringLiteral("串口"));
-    ui->label_2->setText(QStringLiteral("波特率"));
-    ui->label_3->setText(QStringLiteral("数据位"));
-    ui->label_4->setText(QStringLiteral("校验位"));
-    ui->label_6->setText(QStringLiteral("停止位"));
-    ui->label_7->setText(QStringLiteral("流控"));
-    ui->logTitleLabel->setText(QStringLiteral("运行日志"));
-    ui->sendTitleLabel->setText(QStringLiteral("发送内容"));
+    ui->sendHintLabel->setText(QString::fromUtf8("输入调试指令后发送。"));
+    ui->OpenSerialButton->setText(QString::fromUtf8("打开串口"));
+    ui->BackButton->setText(QString::fromUtf8("关闭页面"));
+    ui->SendButton->setText(QString::fromUtf8("发送"));
+    ui->label->setText(QString::fromUtf8("串口"));
+    ui->label_2->setText(QString::fromUtf8("波特率"));
+    ui->label_3->setText(QString::fromUtf8("数据位"));
+    ui->label_4->setText(QString::fromUtf8("校验位"));
+    ui->label_6->setText(QString::fromUtf8("停止位"));
+    ui->label_7->setText(QString::fromUtf8("流控"));
+    ui->logTitleLabel->setText(QString::fromUtf8("运行日志"));
+    ui->sendTitleLabel->setText(QString::fromUtf8("发送内容"));
     if (ui->textEdit != nullptr) {
-        ui->textEdit->setPlainText(QStringLiteral("串口打开、关闭、发送和异常信息会显示在这里。\r\n"));
+        ui->textEdit->setPlainText(QString::fromUtf8("串口打开、关闭、发送和异常信息会显示在这里。\r\n"));
     }
     ui->OpenSerialButton->setMinimumHeight(40);
     ui->BackButton->setMinimumHeight(40);
     ui->SendButton->setMinimumHeight(42);
+
+    m_portRefreshTimer = new QTimer(this);
+    m_portRefreshTimer->setInterval(1000);
+    connect(m_portRefreshTimer, &QTimer::timeout, this, &Device_connection::refreshAvailablePorts);
+    m_portRefreshTimer->start();
+    refreshAvailablePorts();
 
     updateConnectionPanel(false);
 }
@@ -213,7 +214,7 @@ void Device_connection::sendmessage()
         m_WorkThread == nullptr ||
         !m_WorkThread->serial_status ||
         m_WorkThread->serial == nullptr) {
-        QMessageBox::about(this, QStringLiteral("错误"), QStringLiteral("串口未打开"));
+        QMessageBox::about(this, QString::fromUtf8("错误"), QString::fromUtf8("串口未打开"));
         return;
     }
 
@@ -226,14 +227,14 @@ void Device_connection::sendmessage()
     m_RTU_ParameterSetting->sendmessager_lock.unlock();
 
     const QByteArray sendBytes(reinterpret_cast<const char *>(sendbuffer), sendlength);
-    appendRuntimeLog(ui, QStringLiteral("发送报文（%1 字节，%2）\r\n")
+    appendRuntimeLog(ui, QString::fromUtf8("发送报文（%1 字节，%2）\r\n")
                             .arg(sendlength)
                             .arg(afnLabel(m_RTU_ParameterSetting->m_sendmessage.message.AFN)));
     appendRuntimeLog(ui, formatHexWithSpaces(sendBytes) + QStringLiteral("\r\n"));
 
     const qint64 written = m_WorkThread->serial->write(reinterpret_cast<char *>(sendbuffer), sendlength);
     if (written != sendlength) {
-        appendRuntimeLog(ui, QStringLiteral("发送警告：期望 %1 字节，实际 %2 字节，错误：%3\r\n")
+        appendRuntimeLog(ui, QString::fromUtf8("发送警告：期望 %1 字节，实际 %2 字节，错误：%3\r\n")
                                 .arg(sendlength)
                                 .arg(written)
                                 .arg(m_WorkThread->serial->errorString()));
@@ -265,6 +266,67 @@ void Device_connection::updateConnectionPanel(bool connected)
                                       .arg(ui->BaudBox->currentText().isEmpty() ? tr("--") : ui->BaudBox->currentText()));
 }
 
+void Device_connection::refreshAvailablePorts()
+{
+    if (ui == nullptr || ui->PortBox == nullptr) {
+        return;
+    }
+
+    if (isSerialOpen()) {
+        return;
+    }
+
+    const QString currentSelection = ui->PortBox->currentText();
+    QStringList portNames;
+    const auto infos = QSerialPortInfo::availablePorts();
+    portNames.reserve(infos.size());
+    for (const QSerialPortInfo &info : infos) {
+        portNames.append(info.portName());
+    }
+
+    QString newSelection = currentSelection;
+    if (!newSelection.isEmpty() && !portNames.contains(newSelection)) {
+        newSelection.clear();
+    }
+    if (newSelection.isEmpty() && portNames.contains(QStringLiteral("COM4"))) {
+        newSelection = QStringLiteral("COM4");
+    }
+    if (newSelection.isEmpty() && !portNames.isEmpty()) {
+        newSelection = portNames.constFirst();
+    }
+
+    const QStringList existingPorts = [&]() {
+        QStringList ports;
+        ports.reserve(ui->PortBox->count());
+        for (int i = 0; i < ui->PortBox->count(); ++i) {
+            ports.append(ui->PortBox->itemText(i));
+        }
+        return ports;
+    }();
+
+    if (existingPorts == portNames) {
+        if (ui->PortBox->currentText() != newSelection) {
+            const int index = ui->PortBox->findText(newSelection);
+            ui->PortBox->setCurrentIndex(index);
+        }
+        updateConnectionPanel(false);
+        return;
+    }
+
+    const bool wasBlocked = ui->PortBox->blockSignals(true);
+    ui->PortBox->clear();
+    ui->PortBox->addItems(portNames);
+    if (!newSelection.isEmpty()) {
+        ui->PortBox->setCurrentIndex(ui->PortBox->findText(newSelection));
+    }
+    ui->PortBox->blockSignals(wasBlocked);
+    updateConnectionPanel(false);
+
+    appendRuntimeLog(ui, portNames.isEmpty()
+                             ? QString::fromUtf8("串口列表已刷新：未检测到可用串口\r\n")
+                             : QString::fromUtf8("串口列表已刷新：%1\r\n").arg(portNames.join(QStringLiteral(", "))));
+}
+
 void SerialWorkThread::run()
 {
     while (!isInterruptionRequested()) {
@@ -292,8 +354,8 @@ void Device_connection::dispatchCurrentMessage()
     const uint8_t afn = m_RTU_ParameterSetting->m_recivemessage.message.AFN;
     const bool suppressReceiveLog = shouldSuppressReceiveLog(afn);
     if (!suppressReceiveLog) {
-        appendReceiveLog(QStringLiteral("接收完成：%1 字节\r\n").arg(m_RTU_ParameterSetting->rMessageLen));
-        appendReceiveLog(QStringLiteral("报文类型：%1\r\n\r\n").arg(afnLabel(afn)));
+        appendReceiveLog(QString::fromUtf8("接收完成：%1 字节\r\n").arg(m_RTU_ParameterSetting->rMessageLen));
+        appendReceiveLog(QString::fromUtf8("报文类型：%1\r\n\r\n").arg(afnLabel(afn)));
     }
 
     if (m_RTU_ParameterSetting->rMessageLen >= 10 &&
@@ -319,7 +381,7 @@ void Device_connection::dispatchCurrentMessage()
         if (m_RTU_ParameterSetting->m_runtimePage != nullptr) {
             m_RTU_ParameterSetting->m_runtimePage->handleQueryTimeResponse();
         }
-    } else if (afn == AFN_QUERYREALDATA || afn == 0x30) {
+    } else if (afn == AFN_QUERYREALDATA || afn == 0x30 || afn == 0x3A || afn == 0x36) {
         if (m_RTU_ParameterSetting->m_MainWindow != nullptr) {
             auto *page = m_RTU_ParameterSetting->m_MainWindow->findChild<DataQueryPage *>();
             if (page != nullptr) {
@@ -373,13 +435,13 @@ void Device_connection::dispatchCurrentMessage()
             !m_RTU_ParameterSetting->baseReadRetriedAfterLearn &&
             m_RTU_ParameterSetting->m_basicPage != nullptr) {
             m_RTU_ParameterSetting->baseReadRetriedAfterLearn = true;
-            appendRuntimeLog(ui, QStringLiteral("已根据链路维持报自动重试基础参数读取\r\n"));
+            appendRuntimeLog(ui, QString::fromUtf8("已根据链路维持报自动重试基础参数读取\r\n"));
             m_RTU_ParameterSetting->m_basicPage->requestBaseParamRead();
         } else if (!suppressReceiveLog) {
-            appendRuntimeLog(ui, QStringLiteral("未处理报文：%1\r\n").arg(afnLabel(afn)));
+            appendRuntimeLog(ui, QString::fromUtf8("未处理报文：%1\r\n").arg(afnLabel(afn)));
         }
     } else if (!suppressReceiveLog) {
-        appendRuntimeLog(ui, QStringLiteral("未处理报文：%1\r\n").arg(afnLabel(afn)));
+        appendRuntimeLog(ui, QString::fromUtf8("未处理报文：%1\r\n").arg(afnLabel(afn)));
     }
 
     memset(m_RTU_ParameterSetting->m_recivemessage.messageByte, 0, sizeof(m_RTU_ParameterSetting->m_recivemessage.messageByte));
@@ -418,7 +480,7 @@ void Device_connection::processReceiveBuffer()
         m_RTU_ParameterSetting->rMessageLen = static_cast<uint32_t>(frame.size());
         const uint8_t afn = m_RTU_ParameterSetting->m_recivemessage.message.AFN;
         if (!shouldSuppressReceiveLog(afn)) {
-            appendReceiveLog(QStringLiteral("接收数据：%1\r\n").arg(formatHexWithSpaces(frame)));
+            appendReceiveLog(QString::fromUtf8("接收数据：%1\r\n").arg(formatHexWithSpaces(frame)));
         }
         dispatchCurrentMessage();
     }
@@ -427,12 +489,14 @@ void Device_connection::processReceiveBuffer()
 void Device_connection::on_OpenSerialButton_clicked()
 {
     if (ui->OpenSerialButton->text() == tr("打开串口")) {
+        refreshAvailablePorts();
+
         if (m_WorkThread->serial != nullptr || m_WorkThread->isRunning()) {
             closeSerial();
         }
 
         if (ui->PortBox->currentText().isEmpty()) {
-            QMessageBox::about(this, QStringLiteral("错误"), QStringLiteral("未选择串口。"));
+            QMessageBox::about(this, QString::fromUtf8("错误"), QString::fromUtf8("未选择串口。"));
             return;
         }
 
@@ -467,9 +531,9 @@ void Device_connection::on_OpenSerialButton_clicked()
 
         if (!m_WorkThread->serial->open(QIODevice::ReadWrite)) {
             const QString errorText = m_WorkThread->serial->errorString();
-            QMessageBox::about(this, QStringLiteral("错误"),
-                               QStringLiteral("串口打开失败：%1").arg(errorText));
-            appendRuntimeLog(ui, QStringLiteral("串口打开失败：串口=%1，波特率=%2，错误=%3\r\n")
+            QMessageBox::about(this, QString::fromUtf8("错误"),
+                               QString::fromUtf8("串口打开失败：%1").arg(errorText));
+            appendRuntimeLog(ui, QString::fromUtf8("串口打开失败：串口=%1，波特率=%2，错误=%3\r\n")
                                     .arg(ui->PortBox->currentText())
                                     .arg(ui->BaudBox->currentText())
                                     .arg(errorText));
@@ -490,7 +554,7 @@ void Device_connection::on_OpenSerialButton_clicked()
         ui->OpenSerialButton->setText(tr("关闭串口"));
         updateConnectionPanel(true);
         emit connectionStatusChanged(true);
-        appendRuntimeLog(ui, QStringLiteral("串口已打开：%1，%2，8N1，无流控\r\n")
+        appendRuntimeLog(ui, QString::fromUtf8("串口已打开：%1，%2，8N1，无流控\r\n")
                                 .arg(ui->PortBox->currentText())
                                 .arg(ui->BaudBox->currentText()));
 
@@ -525,18 +589,18 @@ void Device_connection::ReadData()
 void Device_connection::on_SendButton_clicked()
 {
     if (!m_WorkThread || !m_WorkThread->serial_status || !m_WorkThread->serial) {
-        QMessageBox::about(this, QStringLiteral("错误"), QStringLiteral("串口未打开"));
+        QMessageBox::about(this, QString::fromUtf8("错误"), QString::fromUtf8("串口未打开"));
         return;
     }
 
     const QByteArray sendbuf = ui->textEdit_2->toPlainText().toUtf8();
     if (sendbuf.isEmpty()) {
-        QMessageBox::about(this, QStringLiteral("提示"), QStringLiteral("请输入要发送的内容"));
+        QMessageBox::about(this, QString::fromUtf8("提示"), QString::fromUtf8("请输入要发送的内容"));
         return;
     }
 
     m_WorkThread->serial->write(sendbuf);
-    appendRuntimeLog(ui, QStringLiteral("手动发送：%1\r\n").arg(formatHexWithSpaces(sendbuf)));
+    appendRuntimeLog(ui, QString::fromUtf8("手动发送：%1\r\n").arg(formatHexWithSpaces(sendbuf)));
 }
 
 void Device_connection::on_BackButton_clicked()
@@ -581,5 +645,7 @@ void Device_connection::closeSerial()
     ui->OpenSerialButton->setText(tr("打开串口"));
     updateConnectionPanel(false);
     emit connectionStatusChanged(false);
-    appendRuntimeLog(ui, QStringLiteral("串口已关闭\r\n"));
+    appendRuntimeLog(ui, QString::fromUtf8("串口已关闭\r\n"));
 }
+
+

@@ -4,8 +4,10 @@
 #include <QBoxLayout>
 #include <QFrame>
 #include <QLabel>
+#include <QLayout>
 #include <QPushButton>
 #include <QSizePolicy>
+#include <QStringList>
 
 namespace {
 QString primaryButtonStyle()
@@ -22,6 +24,35 @@ QString secondaryButtonStyle()
         "QPushButton{background:#ffffff;color:#2f78e8;border:1px solid #bfd4f6;border-radius:6px;padding:8px 14px;font-weight:600;min-height:38px;}"
         "QPushButton:hover{background:#edf4ff;}"
         "QPushButton:pressed{background:#dbe9ff;}");
+}
+
+QStringList portTypeTexts()
+{
+    return QStringList{
+        QStringLiteral("关闭"),
+        QStringLiteral("内置DTU"),
+        QStringLiteral("外置DTU(RDP)"),
+        QStringLiteral("外置DTU(KH)"),
+        QStringLiteral("北斗卫星DTU"),
+        QStringLiteral("超短波DTU"),
+        QStringLiteral("短信DTU"),
+        QStringLiteral("外置DTU(透传)"),
+        QStringLiteral("RF"),
+        QStringLiteral("IC卡"),
+        QStringLiteral("RS485传感器"),
+        QStringLiteral("RS232传感器"),
+        QStringLiteral("格雷码传感器"),
+        QStringLiteral("摄像头"),
+        QStringLiteral("未知")
+    };
+}
+
+QVector<int> portTypeCodes()
+{
+    return QVector<int>{
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+        0x10, 0x11, 0x20, 0x21, 0x22, 0x23, 0x12
+    };
 }
 }
 
@@ -57,9 +88,20 @@ portset::portset(QWidget *parent) :
     setLabelText("labelPort3Hint", QStringLiteral("采集端口"));
     setLabelText("labelPort4Hint", QStringLiteral("外设接口"));
     setLabelText("labelPort5Hint", QStringLiteral("保留 / 兼容端口"));
+    const QStringList typeTexts = portTypeTexts();
+    for (const QString &name : {QStringLiteral("equit_type1"),
+                                QStringLiteral("equit_type2"),
+                                QStringLiteral("equit_type3"),
+                                QStringLiteral("equit_type4"),
+                                QStringLiteral("equit_type5")}) {
+        if (QComboBox *combo = findChild<QComboBox *>(name)) {
+            combo->clear();
+            combo->addItems(typeTexts);
+        }
+    }
     if (QPushButton *setButton = findChild<QPushButton *>(QStringLiteral("set_Button"))) {
         QPushButton *clearButton = new QPushButton(QStringLiteral("清空内容"), setButton->parentWidget());
-        clearButton->setObjectName(QStringLiteral("clear_Button"));
+        clearButton->setObjectName(QStringLiteral("clearButton"));
         clearButton->setStyleSheet(secondaryButtonStyle());
         clearButton->setFixedSize(108, 38);
         clearButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -70,11 +112,27 @@ portset::portset(QWidget *parent) :
                 layout->insertWidget(layout->indexOf(setButton), clearButton);
             }
         }
-        connect(clearButton, &QPushButton::clicked, this, &portset::on_clear_Button_clicked);
+        connect(clearButton, &QPushButton::clicked, this, &portset::handleClearButtonClicked);
     }
     if (QFrame *actionCard = findChild<QFrame *>(QStringLiteral("actionCard"))) {
         actionCard->setMinimumWidth(420);
         actionCard->setMaximumWidth(QWIDGETSIZE_MAX);
+        actionCard->setFixedHeight(62);
+        if (QLayout *layout = actionCard->layout()) {
+            layout->setContentsMargins(14, 12, 14, 12);
+            layout->setSpacing(12);
+        }
+    }
+    if (QBoxLayout *layout = qobject_cast<QBoxLayout *>(ui->actionCard->layout())) {
+        if (QPushButton *button = findChild<QPushButton *>(QStringLiteral("clearButton"))) {
+            layout->setAlignment(button, Qt::AlignVCenter);
+        }
+        if (QPushButton *button = findChild<QPushButton *>(QStringLiteral("read_Button"))) {
+            layout->setAlignment(button, Qt::AlignVCenter);
+        }
+        if (QPushButton *button = findChild<QPushButton *>(QStringLiteral("set_Button"))) {
+            layout->setAlignment(button, Qt::AlignVCenter);
+        }
     }
     memset(port_info.date,0,sizeof (port_info.date));
 }
@@ -86,23 +144,22 @@ portset::~portset()
 
 uint8_t portset::encodePortTypeIndex(int index) const
 {
-    if (index > 11) {
-        index += 7;
-    } else if (index > 8) {
-        index += 1;
+    const QVector<int> codes = portTypeCodes();
+    if (index < 0 || index >= codes.size()) {
+        return 0x00;
     }
-    return Hex2BCD(static_cast<uint8_t>(index));
+    return static_cast<uint8_t>(codes.at(index));
 }
 
 int portset::decodePortTypeValue(uint8_t value) const
 {
-    int index = BCD2Hex(value);
-    if (index > 12) {
-        index -= 8;
-    } else if (index > 8) {
-        index -= 1;
+    const int code = value;
+    const QVector<int> codes = portTypeCodes();
+    const int index = codes.indexOf(code);
+    if (index >= 0) {
+        return index;
     }
-    return index;
+    return 0;
 }
 
 void portset::syncUiToProtocol()
@@ -182,7 +239,7 @@ void portset::on_set_Button_clicked()
     m_RTU_ParameterSetting->m_Device_connection->sendmessage();
 }
 
-void portset::on_clear_Button_clicked()
+void portset::handleClearButtonClicked()
 {
     clearDisplayedParameters();
 }
@@ -638,15 +695,10 @@ void portset::handle_RTUINFO(void)
     ui->RF4->setCurrentIndex(dtuinfobuffer.portinfo.Port4_RF);
     ui->RF5->setCurrentIndex(dtuinfobuffer.portinfo.Port5_RF);
     ///<保留项
-    buffer = QString::fromLocal8Bit((const char*)&dtuinfobuffer.portinfo.Port1_Reserve);
-    ui->keep1->setText(buffer);
-    buffer = QString::fromLocal8Bit((const char*)&dtuinfobuffer.portinfo.Port2_Reserve);
-    ui->keep2->setText(buffer);
-    buffer = QString::fromLocal8Bit((const char*)&dtuinfobuffer.portinfo.Port3_Reserve);
-    ui->keep3->setText(buffer);
-    buffer = QString::fromLocal8Bit((const char*)&dtuinfobuffer.portinfo.Port4_Reserve);
-    ui->keep4->setText(buffer);
-    buffer = QString::fromLocal8Bit((const char*)&dtuinfobuffer.portinfo.Port5_Reserve);
-    ui->keep5->setText(buffer);
+    ui->keep1->setText(QString::number(dtuinfobuffer.portinfo.Port1_Reserve));
+    ui->keep2->setText(QString::number(dtuinfobuffer.portinfo.Port2_Reserve));
+    ui->keep3->setText(QString::number(dtuinfobuffer.portinfo.Port3_Reserve));
+    ui->keep4->setText(QString::number(dtuinfobuffer.portinfo.Port4_Reserve));
+    ui->keep5->setText(QString::number(dtuinfobuffer.portinfo.Port5_Reserve));
     m_RTU_ParameterSetting->recivemessage_lock.unlock();
 }

@@ -206,7 +206,7 @@ void MainWindow::switchToPage(int pageIndex)
         break;
     case DataQueryPageIndex:
         pageTitle = QString::fromUtf8(u8"\u6570\u636e\u67e5\u8be2");
-        pageSubtitle = QString::fromUtf8(u8"\u6309\u5df2\u914d\u7f6e\u7684\u4f20\u611f\u5668\u6267\u884c\u5b9e\u65f6\u6570\u636e\u67e5\u8be2\uff0c\u5e76\u5728\u9875\u9762\u5185\u663e\u793a\u8fd4\u56de\u7ed3\u679c\u3002");
+        pageSubtitle = QString::fromUtf8(u8"\u9009\u62e9\u4f20\u611f\u5668\u5e76\u67e5\u770b\u5b9e\u65f6\u8fd4\u56de\u6570\u636e\u3002");
         break;
     default:
         return;
