@@ -706,7 +706,7 @@ void DataQueryPage::buildUi()
         "QComboBox:hover{border:1px solid #98b2cc;}"
         "QComboBox:focus{border:1px solid #2f78e8;}"
         "QComboBox::drop-down{subcontrol-origin:padding;subcontrol-position:top right;width:32px;border:none;}"
-        "QComboBox::down-arrow{width:0px;height:0px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:7px solid #64748b;margin-right:10px;}"
+        "QComboBox::down-arrow{image:url(:/branding/combo_arrow_down.svg);width:12px;height:8px;margin-right:10px;}"
         "QPushButton{min-width:128px;min-height:40px;max-height:40px;background:#2f78e8;color:#ffffff;border:none;border-radius:6px;padding:0 18px;font-size:14px;font-weight:600;}"
         "QPushButton:hover{background:#2468cc;}"
         "QPushButton:pressed{background:#1d57aa;}"
@@ -782,22 +782,17 @@ void DataQueryPage::buildUi()
     emptyLayout->setSpacing(12);
     emptyLayout->addStretch();
 
-    auto *emptyIcon = new QFrame(m_emptyStatePage);
-    emptyIcon->setFixedSize(84, 84);
-    emptyIcon->setStyleSheet(QStringLiteral(
-        "QFrame{background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 #f8fbff,stop:1 #e4ecf8);"
-        "border:1px solid #dce5f0;border-radius:20px;}"));
-    emptyLayout->addWidget(emptyIcon, 0, Qt::AlignHCenter);
-
-    m_emptyTitleLabel = new QLabel(zh(u8"\u6682\u65e0\u7ed3\u679c"), m_emptyStatePage);
+    m_emptyTitleLabel = new QLabel(QString(), m_emptyStatePage);
     m_emptyTitleLabel->setStyleSheet(QStringLiteral("font-size:18px;font-weight:700;color:#243b53;"));
+    m_emptyTitleLabel->hide();
     emptyLayout->addWidget(m_emptyTitleLabel, 0, Qt::AlignHCenter);
 
-    m_emptyHintLabel = new QLabel(zh(u8"\u9009\u62e9\u4f20\u611f\u5668\u5e76\u67e5\u770b\u5b9e\u65f6\u8fd4\u56de\u6570\u636e\u3002"), m_emptyStatePage);
+    m_emptyHintLabel = new QLabel(QString(), m_emptyStatePage);
     m_emptyHintLabel->setWordWrap(true);
     m_emptyHintLabel->setAlignment(Qt::AlignHCenter);
     m_emptyHintLabel->setStyleSheet(QStringLiteral("font-size:13px;color:#829ab1;"));
     m_emptyHintLabel->setMaximumWidth(260);
+    m_emptyHintLabel->hide();
     emptyLayout->addWidget(m_emptyHintLabel, 0, Qt::AlignHCenter);
     emptyLayout->addStretch();
     m_resultStack->addWidget(m_emptyStatePage);
@@ -853,7 +848,7 @@ void DataQueryPage::buildUi()
     m_imagePreviewLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     m_imagePreviewLabel->setMinimumSize(240, 180);
     m_imagePreviewLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_imagePreviewLabel->setText(zh(u8"\u6682\u65e0\u56fe\u7247"));
+    m_imagePreviewLabel->clear();
     m_imagePreviewLabel->setStyleSheet(QStringLiteral("QLabel{color:#98a2b3;font-size:13px;background:#ffffff;}"));
     imageContainerLayout->addWidget(m_imagePreviewLabel);
 
@@ -883,8 +878,8 @@ void DataQueryPage::clearResults()
     m_resultTable->setRowCount(0);
     m_resultTable->show();
     m_imagePreviewLabel->clear();
-    m_imagePreviewLabel->setText(zh(u8"\u6682\u65e0\u56fe\u7247"));
-    m_imageMetaLabel->setText(zh(u8"\u5f53\u524d\u8fd4\u56de\u6570\u636e\u4e0d\u542b\u56fe\u7247\u3002"));
+    m_imagePreviewLabel->clear();
+    m_imageMetaLabel->clear();
     m_imageCard->hide();
 }
 
@@ -901,6 +896,8 @@ void DataQueryPage::showEmptyState(const QString &title, const QString &hint)
     clearResults();
     m_emptyTitleLabel->setText(title);
     m_emptyHintLabel->setText(hint);
+    m_emptyTitleLabel->setVisible(!title.trimmed().isEmpty());
+    m_emptyHintLabel->setVisible(!hint.trimmed().isEmpty());
     m_resultStack->setCurrentWidget(m_emptyStatePage);
 }
 
@@ -924,8 +921,7 @@ void DataQueryPage::updateImagePreview(const QByteArray &payload)
         m_imageCard->hide();
         m_resultTable->show();
         m_imagePreviewLabel->clear();
-        m_imagePreviewLabel->setText(zh(u8"\u6682\u65e0\u56fe\u7247"));
-        m_imageMetaLabel->setText(zh(u8"\u5f53\u524d\u8fd4\u56de\u6570\u636e\u4e0d\u662f\u53ef\u89e3\u6790\u7684\u56fe\u7247\u3002"));
+        m_imageMetaLabel->clear();
         return;
     }
 

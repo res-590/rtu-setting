@@ -49,6 +49,7 @@ struct SensorRecord
     int portCode = -1;
     int modelCode = -1;
     int elementCode = -1;
+    QVector<int> elementCodes;
     int appendCode = -1;
 };
 

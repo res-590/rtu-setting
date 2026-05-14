@@ -15,14 +15,18 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QListWidget>
 #include <QMessageBox>
+#include <QMenu>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QSettings>
 #include <QListView>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QToolButton>
 #include <QVBoxLayout>
+#include <QWidgetAction>
 #include <vector>
 
 #define MAKEHWORD(a,b) ((uint16_t)(((uint16_t)(a) << 8) | ((uint16_t)(b))))
@@ -72,6 +76,18 @@ QString formatFloatText(float value)
         text.chop(1);
     }
     return text;
+}
+
+QString joinElementNames(const QVector<int> &codes, const QMap<int, QString> &nameMap)
+{
+    QStringList names;
+    for (int code : codes) {
+        const QString text = nameMap.value(code).trimmed();
+        if (!text.isEmpty()) {
+            names << text;
+        }
+    }
+    return names.join(QStringLiteral("、"));
 }
 
 QStringList candidateConfigPaths(const QString &fileName)
@@ -1230,7 +1246,15 @@ SensorConfigFrame sensor::frameFromRecord(const SensorRecord &record) const
     frame.sensorCom = static_cast<qint8>(record.portCode);
     frame.sensorType = static_cast<qint16>(record.modelCode);
     frame.sensor485Addr = static_cast<quint8>(record.address485.toUInt());
-    frame.sensorInstance[0] = static_cast<quint8>(record.elementCode > 0 ? record.elementCode : 0);
+    const QVector<int> elementCodes = !record.elementCodes.isEmpty()
+        ? record.elementCodes
+        : QVector<int>{record.elementCode};
+    for (int i = 0; i < 16; ++i) {
+        frame.sensorInstance[i] = 0;
+    }
+    for (int i = 0; i < elementCodes.size() && i < 16; ++i) {
+        frame.sensorInstance[i] = static_cast<quint8>(elementCodes.at(i) > 0 ? elementCodes.at(i) : 0);
+    }
     frame.sensorInstallAngle = record.angle.toFloat();
     frame.sensorBaseValue = record.baseValue.toFloat();
     frame.sensorResolution = record.resolution.toFloat();
@@ -1262,12 +1286,23 @@ SensorRecord sensor::recordFromFrame(const SensorConfigFrame &frame, int rowInde
     SensorRecord record;
     record.portCode = decoded.sensorCom;
     record.modelCode = decoded.sensorType;
-    record.elementCode = decoded.sensorInstance[0];
+    for (quint8 code : decoded.sensorInstance) {
+        if (code == 0) {
+            continue;
+        }
+        if (!record.elementCodes.contains(code)) {
+            record.elementCodes.push_back(code);
+        }
+    }
+    record.elementCode = record.elementCodes.isEmpty() ? 0 : record.elementCodes.first();
     record.appendCode = decoded.sensorAppendValue;
     record.address485 = QString::number(decoded.sensor485Addr);
     record.id = makeSensorIdentifier(record.portCode, record.modelCode, decoded.sensor485Addr);
     record.name = elementTextFromCode(record.elementCode);
-    record.element = record.name;
+    record.element = joinElementNames(record.elementCodes, m_elementCodeToText);
+    if (record.element.isEmpty()) {
+        record.element = record.name;
+    }
     record.port = portTextFromCode(record.portCode);
     record.model = modelTextFromCode(record.modelCode);
     record.angle = formatFloatText(decoded.sensorInstallAngle);
@@ -1311,7 +1346,7 @@ void sensor::showSensorDialog(int editRow)
     }
 
     QDialog dialog(this);
-    dialog.setWindowTitle(isEdit ? QStringLiteral("编辑传感器参数") : QStringLiteral("新增传感器参数"));
+    dialog.setWindowTitle(isEdit ? QStringLiteral("\u7f16\u8f91\u4f20\u611f\u5668\u53c2\u6570") : QStringLiteral("\u65b0\u589e\u4f20\u611f\u5668\u53c2\u6570"));
     dialog.setMinimumSize(1120, 560);
 
     QVBoxLayout *rootLayout = new QVBoxLayout(&dialog);
@@ -1333,7 +1368,7 @@ void sensor::showSensorDialog(int editRow)
     QLineEdit *nameEdit = new QLineEdit(record.name, &dialog);
     QComboBox *portCombo = new QComboBox(&dialog);
     QComboBox *modelCombo = new QComboBox(&dialog);
-    QComboBox *elementCombo = new QComboBox(&dialog);
+    QToolButton *elementButton = new QToolButton(&dialog);
     QLineEdit *addressEdit = new QLineEdit(record.address485, &dialog);
     QLineEdit *angleEdit = new QLineEdit(record.angle, &dialog);
     QLineEdit *baseEdit = new QLineEdit(record.baseValue, &dialog);
@@ -1343,12 +1378,19 @@ void sensor::showSensorDialog(int editRow)
     QComboBox *extraCombo = new QComboBox(&dialog);
 
     const QList<QWidget *> editors = {
-        nameEdit, portCombo, modelCombo, elementCombo, addressEdit,
+        nameEdit, portCombo, modelCombo, elementButton, addressEdit,
         angleEdit, baseEdit, resolutionEdit, upperEdit, lowerEdit, extraCombo
     };
     for (QWidget *editor : editors) {
         editor->setMinimumHeight(34);
     }
+
+    elementButton->setPopupMode(QToolButton::InstantPopup);
+    elementButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    elementButton->setMinimumWidth(280);
+    elementButton->setStyleSheet(QStringLiteral(
+        "QToolButton{text-align:left;padding:6px 24px 6px 10px;border:1px solid #cfd6e4;border-radius:4px;background:#ffffff;}"
+    ));
 
     const auto portCodes = m_portCodeToText.keys();
     for (int portCode : portCodes) {
@@ -1368,19 +1410,51 @@ void sensor::showSensorDialog(int editRow)
 
     configurePopupWidth(portCombo);
     configurePopupWidth(modelCombo);
-    configurePopupWidth(elementCombo);
     configurePopupWidth(extraCombo);
 
-    auto rebuildElementCombo = [this, elementCombo](int modelCode, int currentElementCode) {
-        elementCombo->clear();
-        const QVector<int> elementCodes = elementCodesForModel(modelCode);
-        for (int code : elementCodes) {
-            elementCombo->addItem(elementTextFromCode(code), code);
+    QMenu *elementMenu = new QMenu(elementButton);
+    QWidgetAction *elementAction = new QWidgetAction(elementMenu);
+    QListWidget *elementList = new QListWidget(elementMenu);
+    elementList->setSelectionMode(QAbstractItemView::NoSelection);
+    elementList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    elementList->setMinimumWidth(320);
+    elementList->setMinimumHeight(240);
+    elementAction->setDefaultWidget(elementList);
+    elementMenu->addAction(elementAction);
+    elementButton->setMenu(elementMenu);
+
+    auto selectedElementCodes = [elementList]() {
+        QVector<int> codes;
+        for (int i = 0; i < elementList->count(); ++i) {
+            QListWidgetItem *item = elementList->item(i);
+            if (item != nullptr && item->checkState() == Qt::Checked) {
+                codes.push_back(item->data(Qt::UserRole).toInt());
+            }
+        }
+        return codes;
+    };
+
+    auto refreshElementButtonText = [this, elementButton, selectedElementCodes]() {
+        const QString text = joinElementNames(selectedElementCodes(), m_elementCodeToText);
+        elementButton->setText(text.isEmpty() ? QStringLiteral("\u8bf7\u9009\u62e9\u91c7\u96c6\u8981\u7d20") : text);
+    };
+
+    auto rebuildElementList = [this, elementList, refreshElementButtonText](int modelCode, const QVector<int> &currentCodes) {
+        elementList->clear();
+        QVector<int> elementCodes = elementCodesForModel(modelCode);
+        for (int code : currentCodes) {
+            if (code > 0 && !elementCodes.contains(code)) {
+                elementCodes.push_back(code);
+            }
         }
 
-        if (currentElementCode > 0 && elementCombo->findData(currentElementCode) < 0) {
-            elementCombo->addItem(elementTextFromCode(currentElementCode), currentElementCode);
+        for (int code : elementCodes) {
+            QListWidgetItem *item = new QListWidgetItem(elementTextFromCode(code), elementList);
+            item->setData(Qt::UserRole, code);
+            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+            item->setCheckState(currentCodes.contains(code) ? Qt::Checked : Qt::Unchecked);
         }
+        refreshElementButtonText();
     };
 
     if (record.portCode >= 0) {
@@ -1397,13 +1471,11 @@ void sensor::showSensorDialog(int editRow)
         }
     }
 
-    rebuildElementCombo(record.modelCode, record.elementCode);
-    if (record.elementCode > 0) {
-        const int index = elementCombo->findData(record.elementCode);
-        if (index >= 0) {
-            elementCombo->setCurrentIndex(index);
-        }
+    QVector<int> currentElementCodes = record.elementCodes;
+    if (currentElementCodes.isEmpty() && record.elementCode > 0) {
+        currentElementCodes.push_back(record.elementCode);
     }
+    rebuildElementList(record.modelCode, currentElementCodes);
 
     if (record.appendCode > 0) {
         const int index = extraCombo->findData(record.appendCode);
@@ -1417,24 +1489,26 @@ void sensor::showSensorDialog(int editRow)
 
     connect(modelCombo, &QComboBox::currentIndexChanged, &dialog, [=](int index) {
         const int modelCode = modelCombo->itemData(index).toInt();
-        rebuildElementCombo(modelCode, 0);
-        configurePopupWidth(elementCombo);
+        rebuildElementList(modelCode, {});
+    });
+    connect(elementList, &QListWidget::itemChanged, &dialog, [=](QListWidgetItem *) {
+        refreshElementButtonText();
     });
 
-    formLayout->addRow(QStringLiteral("传感器名称"), nameEdit);
-    formLayout->addRow(QStringLiteral("接入端口"), portCombo);
-    formLayout->addRow(QStringLiteral("传感器型号"), modelCombo);
-    formLayout->addRow(QStringLiteral("采集要素"), elementCombo);
-    formLayout->addRow(QStringLiteral("485地址"), addressEdit);
-    formLayout->addRow(QStringLiteral("安装角度"), angleEdit);
-    formLayout->addRow(QStringLiteral("基准值"), baseEdit);
-    formLayout->addRow(QStringLiteral("分辨率"), resolutionEdit);
-    formLayout->addRow(QStringLiteral("上限报警值"), upperEdit);
-    formLayout->addRow(QStringLiteral("下限报警值"), lowerEdit);
-    formLayout->addRow(QStringLiteral("附加数据"), extraCombo);
+    formLayout->addRow(QStringLiteral("\u4f20\u611f\u5668\u540d\u79f0"), nameEdit);
+    formLayout->addRow(QStringLiteral("\u63a5\u5165\u7aef\u53e3"), portCombo);
+    formLayout->addRow(QStringLiteral("\u4f20\u611f\u5668\u578b\u53f7"), modelCombo);
+    formLayout->addRow(QStringLiteral("\u91c7\u96c6\u8981\u7d20"), elementButton);
+    formLayout->addRow(QStringLiteral("485\u5730\u5740"), addressEdit);
+    formLayout->addRow(QStringLiteral("\u5b89\u88c5\u89d2\u5ea6"), angleEdit);
+    formLayout->addRow(QStringLiteral("\u57fa\u51c6\u503c"), baseEdit);
+    formLayout->addRow(QStringLiteral("\u5206\u8fa8\u7387"), resolutionEdit);
+    formLayout->addRow(QStringLiteral("\u4e0a\u9650\u62a5\u8b66\u503c"), upperEdit);
+    formLayout->addRow(QStringLiteral("\u4e0b\u9650\u62a5\u8b66\u503c"), lowerEdit);
+    formLayout->addRow(QStringLiteral("\u9644\u52a0\u6570\u636e"), extraCombo);
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(Qt::Horizontal, &dialog);
-    QPushButton *saveButton = buttonBox->addButton(QStringLiteral("保存并下发"), QDialogButtonBox::AcceptRole);
+    QPushButton *saveButton = buttonBox->addButton(QStringLiteral("\u4fdd\u5b58\u5e76\u4e0b\u53d1"), QDialogButtonBox::AcceptRole);
     QPushButton *cancelButton = buttonBox->addButton(QDialogButtonBox::Cancel);
     saveButton->setStyleSheet(buttonStyle(QStringLiteral("#2f78e8")));
     cancelButton->setStyleSheet(QStringLiteral("QPushButton{padding:8px 18px;}"));
@@ -1444,35 +1518,47 @@ void sensor::showSensorDialog(int editRow)
     connect(saveButton, &QPushButton::clicked, &dialog, [&]() {
         const int portCode = portCombo->currentData().toInt();
         const int modelCode = modelCombo->currentData().toInt();
-        const int elementCode = elementCombo->currentData().toInt();
         const int appendCode = extraCombo->currentData().toInt();
         const int address485 = addressEdit->text().trimmed().toInt();
+        const QVector<int> checkedElementCodes = selectedElementCodes();
 
         if (nameEdit->text().trimmed().isEmpty()) {
-            QMessageBox::warning(&dialog, QStringLiteral("提示"), QStringLiteral("请输入传感器名称"));
+            QMessageBox::warning(&dialog, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u8f93\u5165\u4f20\u611f\u5668\u540d\u79f0"));
             return;
         }
         if (portCombo->currentIndex() < 0) {
-            QMessageBox::warning(&dialog, QStringLiteral("提示"), QStringLiteral("请选择接入端口"));
+            QMessageBox::warning(&dialog, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u9009\u62e9\u63a5\u5165\u7aef\u53e3"));
             return;
         }
         if (modelCombo->currentIndex() < 0) {
-            QMessageBox::warning(&dialog, QStringLiteral("提示"), QStringLiteral("请选择传感器型号"));
+            QMessageBox::warning(&dialog, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u9009\u62e9\u4f20\u611f\u5668\u578b\u53f7"));
             return;
         }
-        if (elementCombo->currentIndex() < 0) {
-            QMessageBox::warning(&dialog, QStringLiteral("提示"), QStringLiteral("请选择采集要素"));
+        if (checkedElementCodes.isEmpty()) {
+            QMessageBox::warning(&dialog, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u9009\u62e9\u91c7\u96c6\u8981\u7d20"));
             return;
+        }
+        if (checkedElementCodes.size() > 16) {
+            QMessageBox::warning(&dialog, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u91c7\u96c6\u8981\u7d20\u6700\u591a\u53ea\u80fd\u9009\u62e916\u4e2a"));
+            return;
+        }
+        for (int code : checkedElementCodes) {
+            if (code < 0 || code > 0xff) {
+                QMessageBox::warning(&dialog, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u5f53\u524d\u4ec5\u652f\u63011\u5b57\u8282\u91c7\u96c6\u8981\u7d20\u7f16\u7801"));
+                return;
+            }
         }
         if (address485 < 0 || address485 > 255) {
-            QMessageBox::warning(&dialog, QStringLiteral("提示"), QStringLiteral("485地址需在0到255之间"));
+            QMessageBox::warning(&dialog, QStringLiteral("\u63d0\u793a"), QStringLiteral("485\u5730\u5740\u9700\u57280\u5230255\u4e4b\u95f4"));
             return;
         }
 
         record.name = nameEdit->text().trimmed();
         record.port = portCombo->currentText().trimmed();
         record.model = modelCombo->currentText().trimmed();
-        record.element = elementCombo->currentText().trimmed();
+        record.elementCodes = checkedElementCodes;
+        record.elementCode = checkedElementCodes.first();
+        record.element = joinElementNames(checkedElementCodes, m_elementCodeToText);
         record.address485 = QString::number(address485);
         record.angle = angleEdit->text().trimmed();
         record.baseValue = baseEdit->text().trimmed();
@@ -1482,7 +1568,6 @@ void sensor::showSensorDialog(int editRow)
         record.extraData = extraCombo->currentText().trimmed();
         record.portCode = portCode;
         record.modelCode = modelCode;
-        record.elementCode = elementCode;
         record.appendCode = appendCode;
         record.id = makeSensorIdentifier(record.portCode, record.modelCode, address485);
 

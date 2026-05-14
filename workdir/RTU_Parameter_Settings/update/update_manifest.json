@@ -1,6 +1,6 @@
 ﻿{
-    "version":  "1.0.5",
-    "url":  "https://github.com/res-590/rtu-setting/releases/download/v1.0.5/RTU_Parameter_Config_Tool-1.0.5.zip",
-    "sha256":  "4465f500230ff13b62b5b4390321757c6147350ef6c8ddb5a07447c41b0aee60",
-    "notes":  "1. 修复在线升级器在部分机器上因缺少运行库而无法启动的问题\n2. 旧版本用户如在线升级仍失败，请先手动覆盖升级到 1.0.5"
+    "version":  "1.0.6",
+    "url":  "https://github.com/res-590/rtu-setting/releases/download/v1.0.6/RTU_Parameter_Config_Tool-1.0.6.zip",
+    "sha256":  "f33830242b7fbe85fabec1fc4299374a0f7669148e7bb458a7f8ed4c665f2608",
+    "notes":  "1. 修复下拉箭头发布后显示异常\r\n2. 传感器采集要素支持多选下发\r\n3. 图片查询空状态改为空白"
 }

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>branding/app_icon.ico</file>
+        <file>branding/combo_arrow_down.svg</file>
     </qresource>
 </RCC>

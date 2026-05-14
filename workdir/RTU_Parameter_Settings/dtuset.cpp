@@ -52,7 +52,7 @@ QString panelStyle()
         "QLineEdit:focus,QComboBox:focus{border:1px solid #3b82f6;background:#ffffff;}"
         "QLineEdit::placeholder{color:#94a3b8;}"
         "QComboBox::drop-down{border:none;width:30px;}"
-        "QComboBox::down-arrow{image:none;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #64748b;margin-right:10px;}"
+        "QComboBox::down-arrow{image:url(:/branding/combo_arrow_down.svg);width:12px;height:8px;margin-right:10px;}"
         "QFrame#channel1Card,QFrame#channel2Card,QFrame#channel3Card,QFrame#channel4Card{background:#f8fbff;border:1px solid #d9e7fb;border-radius:16px;}");
 }
 }
@@ -655,5 +655,4 @@ void dtuset::handle_DTUINFO(void)
     this->dtuinfo = dtuinfobuffer;
 //this->dtuinfo.DTU_info.message_CompileType = index - 1;
 }
-
 
