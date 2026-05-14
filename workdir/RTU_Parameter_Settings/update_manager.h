@@ -9,6 +9,7 @@
 
 class QNetworkAccessManager;
 class QNetworkReply;
+class QSaveFile;
 class QWidget;
 
 class UpdateManager : public QObject
@@ -28,6 +29,7 @@ signals:
 private slots:
     void handleManifestReply();
     void handlePackageProgress(qint64 bytesReceived, qint64 bytesTotal);
+    void handlePackageReadyRead();
     void handlePackageReply();
 
 private:
@@ -62,6 +64,7 @@ private:
     QNetworkAccessManager *m_networkManager;
     QPointer<QNetworkReply> m_manifestReply;
     QPointer<QNetworkReply> m_packageReply;
+    QSaveFile *m_packageFile = nullptr;
     UpdateConfig m_config;
     UpdateManifest m_pendingManifest;
     UpdateManifest m_availableManifest;

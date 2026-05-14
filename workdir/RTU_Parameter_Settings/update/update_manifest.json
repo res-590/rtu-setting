@@ -1,6 +1,6 @@
-﻿{
-    "version":  "1.0.6",
-    "url":  "https://github.com/res-590/rtu-setting/releases/download/v1.0.6/RTU_Parameter_Config_Tool-1.0.6.zip",
-    "sha256":  "f33830242b7fbe85fabec1fc4299374a0f7669148e7bb458a7f8ed4c665f2608",
-    "notes":  "1. 修复下拉箭头发布后显示异常\r\n2. 传感器采集要素支持多选下发\r\n3. 图片查询空状态改为空白"
+{
+    "version": "1.0.7",
+    "url": "https://github.com/res-590/rtu-setting/releases/download/v1.0.7/RTU_Parameter_Config_Tool-1.0.7.zip",
+    "sha256": "300cadeb093a7fb6c9f6c193177d71b674611106d6bf2c77c0de4df59ee6691b",
+    "notes": "1. ????????????????????????????\r\n2. ?? 1.0.6 ????????????"
 }

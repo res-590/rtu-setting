@@ -285,59 +285,84 @@ void UpdateManager::handlePackageReply()
     }
 
     QString errorText;
-    QByteArray data;
     if (m_packageReply->error() != QNetworkReply::NoError) {
         errorText = describeNetworkError(m_packageReply);
-    } else {
-        data = m_packageReply->readAll();
     }
+
+    handlePackageReadyRead();
 
     m_packageReply->deleteLater();
     m_packageReply = nullptr;
 
     if (!errorText.isEmpty()) {
-        appendLog(QStringLiteral("[更新] 下载更新包失败：%1").arg(errorText));
-        showInfoMessage(QStringLiteral("在线升级"), QStringLiteral("下载更新包失败：%1").arg(errorText));
+        appendLog(QStringLiteral("[\u66f4\u65b0] \u4e0b\u8f7d\u66f4\u65b0\u5305\u5931\u8d25\uff1a%1").arg(errorText));
+        if (m_packageFile != nullptr) {
+            m_packageFile->cancelWriting();
+            delete m_packageFile;
+            m_packageFile = nullptr;
+        }
+        QFile::remove(m_downloadedPackagePath);
+        showInfoMessage(QStringLiteral("\u5728\u7ebf\u5347\u7ea7"), QStringLiteral("\u4e0b\u8f7d\u66f4\u65b0\u5305\u5931\u8d25\uff1a%1").arg(errorText));
         resetState();
         return;
     }
 
-    QSaveFile file(m_downloadedPackagePath);
-    if (!file.open(QIODevice::WriteOnly)) {
-        showInfoMessage(QStringLiteral("在线升级"),
-                        QStringLiteral("无法写入更新包：%1").arg(QDir::toNativeSeparators(m_downloadedPackagePath)));
+    if (m_packageFile == nullptr) {
+        showInfoMessage(QStringLiteral("\u5728\u7ebf\u5347\u7ea7"),
+                        QStringLiteral("\u65e0\u6cd5\u5199\u5165\u66f4\u65b0\u5305\uff1a%1").arg(QDir::toNativeSeparators(m_downloadedPackagePath)));
         resetState();
         return;
     }
-    file.write(data);
-    if (!file.commit()) {
-        showInfoMessage(QStringLiteral("在线升级"),
-                        QStringLiteral("保存更新包失败：%1").arg(QDir::toNativeSeparators(m_downloadedPackagePath)));
+
+    if (!m_packageFile->commit()) {
+        showInfoMessage(QStringLiteral("\u5728\u7ebf\u5347\u7ea7"),
+                        QStringLiteral("\u4fdd\u5b58\u66f4\u65b0\u5305\u5931\u8d25\uff1a%1").arg(QDir::toNativeSeparators(m_downloadedPackagePath)));
+        delete m_packageFile;
+        m_packageFile = nullptr;
         resetState();
         return;
     }
+    delete m_packageFile;
+    m_packageFile = nullptr;
 
     if (!verifyPackageHash(m_downloadedPackagePath, m_pendingManifest.sha256)) {
-        appendLog(QStringLiteral("[更新] 更新包校验失败：%1").arg(m_downloadedPackagePath));
+        appendLog(QStringLiteral("[\u66f4\u65b0] \u66f4\u65b0\u5305\u6821\u9a8c\u5931\u8d25\uff1a%1").arg(m_downloadedPackagePath));
         QFile::remove(m_downloadedPackagePath);
-        showInfoMessage(QStringLiteral("在线升级"), QStringLiteral("更新包校验失败，已终止升级。"));
+        showInfoMessage(QStringLiteral("\u5728\u7ebf\u5347\u7ea7"), QStringLiteral("\u66f4\u65b0\u5305\u6821\u9a8c\u5931\u8d25\uff0c\u5df2\u7ec8\u6b62\u5347\u7ea7\u3002"));
         resetState();
         return;
     }
 
-    appendLog(QStringLiteral("[更新] 更新包下载完成：%1").arg(m_downloadedPackagePath));
+    appendLog(QStringLiteral("[\u66f4\u65b0] \u66f4\u65b0\u5305\u4e0b\u8f7d\u5b8c\u6210\uff1a%1").arg(m_downloadedPackagePath));
     if (!launchUpdater(m_downloadedPackagePath, m_pendingManifest.version)) {
-        showInfoMessage(QStringLiteral("在线升级"),
-                        QStringLiteral("启动升级器失败，请检查发布目录中的 %1 是否存在。")
+        showInfoMessage(QStringLiteral("\u5728\u7ebf\u5347\u7ea7"),
+                        QStringLiteral("\u542f\u52a8\u5347\u7ea7\u5668\u5931\u8d25\uff0c\u8bf7\u68c0\u67e5\u53d1\u5e03\u76ee\u5f55\u4e2d\u7684 %1 \u662f\u5426\u5b58\u5728\u3002")
                             .arg(APP_UPDATER_EXE_LITERAL));
         resetState();
         return;
     }
 
     QMessageBox::information(m_ownerWidget,
-                             QStringLiteral("在线升级"),
-                             QStringLiteral("更新包已下载完成，程序即将退出并启动升级器。"));
+                             QStringLiteral("\u5728\u7ebf\u5347\u7ea7"),
+                             QStringLiteral("\u66f4\u65b0\u5305\u5df2\u4e0b\u8f7d\u5b8c\u6210\uff0c\u7a0b\u5e8f\u5373\u5c06\u9000\u51fa\u5e76\u542f\u52a8\u5347\u7ea7\u5668\u3002"));
     QCoreApplication::quit();
+}
+
+void UpdateManager::handlePackageReadyRead()
+{
+    if (!m_packageReply || m_packageFile == nullptr) {
+        return;
+    }
+
+    const QByteArray chunk = m_packageReply->readAll();
+    if (chunk.isEmpty()) {
+        return;
+    }
+
+    if (m_packageFile->write(chunk) != chunk.size()) {
+        appendLog(QStringLiteral("[\u66f4\u65b0] \u5199\u5165\u66f4\u65b0\u5305\u5931\u8d25\uff1a%1").arg(QDir::toNativeSeparators(m_downloadedPackagePath)));
+        m_packageReply->abort();
+    }
 }
 
 bool UpdateManager::loadConfig()
@@ -378,6 +403,19 @@ bool UpdateManager::loadConfig()
 
 void UpdateManager::resetState()
 {
+    if (m_packageReply) {
+        m_packageReply->deleteLater();
+        m_packageReply = nullptr;
+    }
+    if (m_manifestReply) {
+        m_manifestReply->deleteLater();
+        m_manifestReply = nullptr;
+    }
+    if (m_packageFile != nullptr) {
+        m_packageFile->cancelWriting();
+        delete m_packageFile;
+        m_packageFile = nullptr;
+    }
     m_pendingManifest = UpdateManifest();
     m_downloadedPackagePath.clear();
     m_lastProgressBytes = -1;
@@ -444,12 +482,26 @@ void UpdateManager::downloadPackage(const UpdateManifest &manifest)
                                     .arg(APP_PRODUCT_ID_LITERAL, manifest.version);
     m_downloadedPackagePath = QDir(downloadDir).filePath(zipFileName);
 
-    appendLog(QStringLiteral("[更新] 开始下载版本 %1：%2")
+    appendLog(QStringLiteral("[\u66f4\u65b0] \u5f00\u59cb\u4e0b\u8f7d\u7248\u672c %1\uff1a%2")
                   .arg(manifest.version, manifest.packageUrl.toString()));
+
+    delete m_packageFile;
+    m_packageFile = new QSaveFile(m_downloadedPackagePath);
+    if (!m_packageFile->open(QIODevice::WriteOnly)) {
+        appendLog(QStringLiteral("[\u66f4\u65b0] \u65e0\u6cd5\u521b\u5efa\u66f4\u65b0\u5305\uff1a%1").arg(QDir::toNativeSeparators(m_downloadedPackagePath)));
+        showInfoMessage(QStringLiteral("\u5728\u7ebf\u5347\u7ea7"),
+                        QStringLiteral("\u65e0\u6cd5\u5199\u5165\u66f4\u65b0\u5305\uff1a%1").arg(QDir::toNativeSeparators(m_downloadedPackagePath)));
+        delete m_packageFile;
+        m_packageFile = nullptr;
+        resetState();
+        return;
+    }
 
     QNetworkRequest request(manifest.packageUrl);
     prepareNetworkRequest(request, m_config.requestTimeoutMs);
     m_packageReply = m_networkManager->get(request);
+    connect(m_packageReply, &QIODevice::readyRead,
+            this, &UpdateManager::handlePackageReadyRead);
     connect(m_packageReply, &QNetworkReply::downloadProgress,
             this, &UpdateManager::handlePackageProgress);
     connect(m_packageReply, &QNetworkReply::finished,
